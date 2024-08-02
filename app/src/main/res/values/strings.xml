@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Hyper Pong</string>
+    <string name="voltar">Voltar</string>
+    <string name="compartilhar">Compartilhar</string>
+    <string name="adicionar_jogador">Adicionar jogador</string>
+    <string name="posicao_ranking">#%1$s</string>
+    <string name="ultima_atualizacao">Última atualização: %1$s</string>
+    <string name="ainda_nao_hajogadores_registrados_no_ranking">Ainda não há jogadores registrados no ranking.</string>
+    <string name="criar_ranking">Criar ranking</string>
+    <string name="buscar_ranking">Buscar ranking</string>
+    <string name="nome_que_os_participantes_deverao_pesquisar_para_encontrar_ranking">Nome que os participantes deverão pesquisar para encontrar ranking</string>
+    <string name="nome_do_ranking">Nome do ranking</string>
+    <string name="somente_quem_tem_a_senha_do_administrador_pode_editar_o_ranking">Somente quem tem a senha do administrador pode editar o ranking</string>
+    <string name="senha_do_administrador">Senha do administrador</string>
+    <string name="a_senha_deve_conter_no_minimo_6_digitos">A senha deve conter no mínimo 6 dígitos</string>
+    <string name="o_ranking_ainda_nao_foi_salvo_no_servidor">O ranking ainda não foi salvo no servidor.</string>
+    <string name="o_aplicativo_esta_sendo_sincronizado_com_o_servidor_as_informa_es_podem_estar_desatualizadas">O aplicativo está sendo sincronizado com o servidor.\nAs informações podem estar desatualizadas.</string>
+    <string name="my_rankings">Meus Rankings</string>
+    <string name="home">Home</string>
+    <string name="deletar_raking">Deletar ranking</string>
+</resources>
