@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Hyper Pong"
+rootProject.name = "Rankify"
 include(":app")

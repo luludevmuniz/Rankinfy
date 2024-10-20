@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Hyper Pong</string>
+    <string name="app_name">Rankify</string>
     <string name="voltar">Voltar</string>
     <string name="compartilhar">Compartilhar</string>
     <string name="adicionar_jogador">Adicionar jogador</string>
@@ -18,4 +18,6 @@
     <string name="my_rankings">Meus Rankings</string>
     <string name="home">Home</string>
     <string name="deletar_raking">Deletar ranking</string>
+    <string name="apenas_numeros">Apenas números</string>
+    <string name="id_do_ranking">ID do ranking</string>
 </resources>
