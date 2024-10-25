@@ -20,7 +20,8 @@ fun RankingEntity.asExternalModel() = Ranking(
     name = name,
     lastUpdated = lastUpdated,
     isAdmin = isAdmin,
-    remoteId = remoteId
+    remoteId = remoteId,
+    adminPassword = adminPassword
 )
 
 fun PlayerEntity.asExternalModel() = Player(
@@ -39,7 +40,8 @@ fun RankingWithPlayers.asExternalModel() = Ranking(
     lastUpdated = ranking.lastUpdated,
     isAdmin = ranking.isAdmin,
     remoteId = ranking.remoteId,
-    players = players.map { it.asExternalModel() }
+    players = players.map { it.asExternalModel() },
+    adminPassword = ranking.adminPassword
 )
 
 fun Player.asEntity() = PlayerEntity(

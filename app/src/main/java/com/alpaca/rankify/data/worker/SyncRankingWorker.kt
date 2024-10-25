@@ -37,6 +37,7 @@ class SyncRankingWorker
                         remoteRanking
                             .asEntity()
                             .copy(
+                                name = "teste",
                                 localId = localId,
                                 isAdmin = isAdmin,
                             ),

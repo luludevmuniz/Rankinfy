@@ -1,5 +1,6 @@
 package com.alpaca.rankify.presentation.panels.ranking_details
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +10,6 @@ import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.use_cases.UseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -95,7 +95,7 @@ class RankingDetailsViewModel @Inject constructor(
     }
 
     private fun syncRemoteRanking(ranking: Ranking) {
-        syncRemoteRankingJob = CoroutineScope(Dispatchers.IO).launch {
+        syncRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
             useCases.scheduleSyncRanking(ranking = ranking)
                 .collectLatest { workInfo ->
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
@@ -109,7 +109,7 @@ class RankingDetailsViewModel @Inject constructor(
     }
 
     private fun createRemoteRanking(ranking: Ranking) {
-        createRemoteRankingJob = CoroutineScope(Dispatchers.IO).launch {
+        createRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
             useCases.scheduleRemoteRankingCreation(
                 ranking = CreateRankingDTO(
                     name = ranking.name,
@@ -156,6 +156,7 @@ class RankingDetailsViewModel @Inject constructor(
         localId: Long,
         remoteId: Long?
     ) {
+        hideDeleteRankingDialog()
         viewModelScope.launch {
             val success = useCases.deleteRanking(id = localId) != 0
             if (success) {
@@ -171,7 +172,6 @@ class RankingDetailsViewModel @Inject constructor(
                         remoteId = remoteId
                     )
                 }
-                hideDeleteRankingDialog()
             }
         }
     }
@@ -315,6 +315,7 @@ class RankingDetailsViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        Log.d("RankingDetailsViewModel", "onCleared")
         createRemoteRankingJob?.cancel()
         syncRemoteRankingJob?.cancel()
     }

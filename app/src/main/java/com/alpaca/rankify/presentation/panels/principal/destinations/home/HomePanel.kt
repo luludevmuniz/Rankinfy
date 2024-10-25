@@ -9,9 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.CreateRanking
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.TogglePasswordVisibility
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingName
@@ -21,6 +25,7 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedId
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedName
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -33,13 +38,25 @@ fun HomeScreen(
     }
     val createRankingUiState by createRankingViewModel.uiState.collectAsStateWithLifecycle()
     val searchRankingUiState by searchRankingViewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        createRankingViewModel.navigationEvent.collect {
-            navigateToRanking(
-                it.id,
-                it.adminPassword
-            )
+    val lifecycleOwner = rememberUpdatedState(newValue = LocalLifecycleOwner.current)
+    LaunchedEffect(lifecycleOwner.value.lifecycle) {
+        lifecycleOwner.value.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            launch {
+                createRankingViewModel.navigationEvent.collect {
+                    navigateToRanking(
+                        it.id,
+                        it.adminPassword
+                    )
+                }
+            }
+            launch {
+                searchRankingViewModel.navigationEvent.collect {
+                    navigateToRanking(
+                        it.id,
+                        null
+                    )
+                }
+            }
         }
     }
 

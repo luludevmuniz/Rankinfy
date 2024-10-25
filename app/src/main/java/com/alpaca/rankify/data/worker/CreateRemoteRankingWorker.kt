@@ -24,20 +24,20 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val localId = inputData.getLong(WORK_DATA_LOCAL_RANKING_ID, -1)
-        val adminPassword = inputData.getString(WORK_DATA_ADMIN_PASSWORD) ?: return Result.failure()
 
         return try {
             val ranking = useCases.getRanking(id = localId).firstOrNull() ?: return Result.failure()
+            if (ranking.adminPassword == null) return Result.failure()
             val networkRanking = useCases.createRemoteRanking(
                 ranking =
                 CreateRankingDTO(
                     name = ranking.name,
-                    adminPassword = adminPassword,
+                    adminPassword = ranking.adminPassword,
                     players = ranking.players.map { player ->
                         CreatePlayerDTO(
                             name = player.name,
                             score = player.score,
-                            rankingId = player.rankingId
+                            rankingAdminPassword = ranking.adminPassword
                         )
                     }
                 )

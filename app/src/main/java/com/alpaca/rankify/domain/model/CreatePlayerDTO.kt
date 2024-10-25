@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreatePlayerDTO(
-    val rankingId: Long,
+    val rankingAdminPassword: String,
     val name: String,
     val score: String
 )

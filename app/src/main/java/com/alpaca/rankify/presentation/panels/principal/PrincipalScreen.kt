@@ -32,7 +32,7 @@ fun PrincipalScreen(
                         Text(
                             text = stringResource(destination.label)
                         )
-                            },
+                    },
                     selected = destination == currentDestination,
                     onClick = { currentDestination = destination }
                 )

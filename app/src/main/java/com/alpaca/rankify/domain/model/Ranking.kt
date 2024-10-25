@@ -15,6 +15,7 @@ data class Ranking(
     val name: String = "",
     val lastUpdated: LocalDateTime? = null,
     val players: List<Player> = emptyList(),
+    val adminPassword: String? = null,
     val isAdmin: Boolean = false
 ) {
     val sortedPlayers get() = players.sortedBy { it.currentRankingPosition }

@@ -15,6 +15,8 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingName
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -58,10 +60,15 @@ class CreateRankingViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
-                val id = useCases.createRanking(rankingName = name)
+                val id = async(Dispatchers.IO) {
+                    useCases.createRanking(
+                        rankingName = name,
+                        rankingAdminPassword = password
+                    )
+                }
                 _navigationEvent.emit(
                     RankingCreated(
-                        id = id,
+                        id = id.await(),
                         adminPassword = password
                     )
                 )

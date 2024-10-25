@@ -14,10 +14,12 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedId
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedName
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,8 +32,8 @@ class SearchRankingViewModel
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(SearchRankingUiState())
         val uiState = _uiState.asStateFlow()
-        private val _navigationEvent = MutableSharedFlow<RankingSearched>()
-        val navigationEvent = _navigationEvent.asSharedFlow()
+        private val _navigationEvent = Channel<RankingSearched>()
+        val navigationEvent = _navigationEvent.receiveAsFlow()
 
         fun onEvent(event: SearchRankingEvent) {
             when (event) {
@@ -57,7 +59,7 @@ class SearchRankingViewModel
             }
             viewModelScope.launch {
                 val searchedRankingId = useCases.searchRanking(id = id.toLongOrNull() ?: 0L)
-                _navigationEvent.emit(RankingSearched(id = searchedRankingId))
+                _navigationEvent.send(RankingSearched(id = searchedRankingId))
                 resetUiState()
             }
         }

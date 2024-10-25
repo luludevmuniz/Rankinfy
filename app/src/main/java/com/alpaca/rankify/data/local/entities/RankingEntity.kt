@@ -22,5 +22,7 @@ data class RankingEntity(
     @ColumnInfo(name = "last_updated")
     val lastUpdated: LocalDateTime? = null,
     @ColumnInfo(name = "is_admin")
-    val isAdmin: Boolean
+    val isAdmin: Boolean,
+    @ColumnInfo(name = "admin_password")
+    val adminPassword: String? = null,
 )

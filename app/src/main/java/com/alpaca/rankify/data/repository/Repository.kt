@@ -36,11 +36,15 @@ class Repository
         private val remote: RemoteDataSource,
         private val workManager: WorkManager,
     ) {
-        suspend fun createRanking(rankingName: String): Long {
+        suspend fun createRanking(
+            rankingName: String,
+            rankingAdminPassword: String
+        ): Long {
             val rankingEntity =
                 RankingEntity(
                     name = rankingName,
                     isAdmin = true,
+                    adminPassword = rankingAdminPassword
                 )
             return local.saveRanking(ranking = rankingEntity)
         }

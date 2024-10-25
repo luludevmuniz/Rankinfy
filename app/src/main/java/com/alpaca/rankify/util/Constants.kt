@@ -1,7 +1,7 @@
 package com.alpaca.rankify.util
 
 object Constants {
-    const val BASE_URL = "http://192.168.18.6:8080"
+    const val BASE_URL = "http://192.168.18.5:8080"
     const val RANKING_TABLE = "rankings"
     const val PLAYER_TABLE = "players"
     const val DATABASE_NAME = "pongrankings.db"

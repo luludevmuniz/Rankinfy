@@ -70,6 +70,7 @@ fun RankingScreen(
             onBackClick()
         }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
