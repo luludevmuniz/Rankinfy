@@ -20,7 +20,7 @@ constructor(
 ) : ViewModel() {
     val savedRankings: StateFlow<List<Ranking>> =
         useCases
-            .getAllRankings()
+            .getAllRanks()
             .catch { e ->
                 e.printStackTrace()
                 // TODO: Logging
@@ -32,7 +32,7 @@ constructor(
 
     fun deleteRanking(id: Long) {
         viewModelScope.launch {
-            useCases.deleteRanking(id)
+            useCases.deleteRank(id)
         }
     }
 }

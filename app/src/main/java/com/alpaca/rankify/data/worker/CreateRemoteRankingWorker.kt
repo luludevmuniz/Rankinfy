@@ -5,11 +5,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.CreateRankingDTO
+import com.alpaca.rankify.domain.model.mappers.asDto
 import com.alpaca.rankify.domain.model.mappers.asEntity
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.Constants.WORK_DATA_ADMIN_PASSWORD
 import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -26,23 +25,19 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
         val localId = inputData.getLong(WORK_DATA_LOCAL_RANKING_ID, -1)
 
         return try {
-            val ranking = useCases.getRanking(id = localId).firstOrNull() ?: return Result.failure()
+            val ranking = useCases.getRank(id = localId).firstOrNull() ?: return Result.failure()
             if (ranking.adminPassword == null) return Result.failure()
-            val networkRanking = useCases.createRemoteRanking(
+            val networkRanking = useCases.createRemoteRank(
                 ranking =
                 CreateRankingDTO(
                     name = ranking.name,
                     adminPassword = ranking.adminPassword,
                     players = ranking.players.map { player ->
-                        CreatePlayerDTO(
-                            name = player.name,
-                            score = player.score,
-                            rankingAdminPassword = ranking.adminPassword
-                        )
+                        player.asDto()
                     }
                 )
             )
-            useCases.updateRanking(networkRanking.copy(isAdmin = true).asEntity(mobileId = localId))
+            useCases.updateRank(networkRanking.copy(isAdmin = true).asEntity(mobileId = localId))
             Result.success(
                 workDataOf(
                     "teste" to 0

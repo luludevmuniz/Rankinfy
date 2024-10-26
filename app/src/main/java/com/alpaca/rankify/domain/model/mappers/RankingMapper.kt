@@ -4,6 +4,7 @@ import com.alpaca.rankify.data.local.entities.PlayerEntity
 import com.alpaca.rankify.data.local.entities.RankingEntity
 import com.alpaca.rankify.data.local.entities.RankingWithPlayers
 import com.alpaca.rankify.data.remote.models.NetworkRanking
+import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
 
@@ -13,6 +14,25 @@ fun NetworkRanking.asEntity(mobileId: Long? = null) = RankingEntity(
     lastUpdated = lastUpdated,
     isAdmin = isAdmin,
     remoteId = apiId
+)
+
+fun NetworkRanking.asExternalModel(
+    mobileId: Long
+) = Ranking(
+    localId = mobileId,
+    name = name,
+    lastUpdated = lastUpdated,
+    isAdmin = isAdmin,
+    remoteId = apiId,
+    players = players
+)
+
+fun Ranking.asEntity() = RankingEntity(
+    localId = localId,
+    name = name,
+    lastUpdated = lastUpdated,
+    isAdmin = isAdmin,
+    remoteId = remoteId
 )
 
 fun RankingEntity.asExternalModel() = Ranking(
@@ -52,4 +72,10 @@ fun Player.asEntity() = PlayerEntity(
     currentRankingPosition = currentRankingPosition,
     previousRankingPosition = previousRankingPosition,
     score = score
+)
+
+fun Player.asDto(remoteRankingId: Long? = null) = CreatePlayerDTO(
+    name = name,
+    score = score,
+    remoteRankingId = remoteRankingId
 )

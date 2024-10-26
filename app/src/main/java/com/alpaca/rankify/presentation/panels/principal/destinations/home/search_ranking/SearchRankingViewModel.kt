@@ -15,9 +15,7 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -58,7 +56,7 @@ class SearchRankingViewModel
                 return
             }
             viewModelScope.launch {
-                val searchedRankingId = useCases.searchRanking(id = id.toLongOrNull() ?: 0L)
+                val searchedRankingId = useCases.searchRank(id = id.toLongOrNull() ?: 0L)
                 _navigationEvent.send(RankingSearched(id = searchedRankingId))
                 resetUiState()
             }

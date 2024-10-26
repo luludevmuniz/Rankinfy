@@ -22,8 +22,22 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
     override suspend fun deleteRanking(id: Long): Int =
         rankingDao.deleteRanking(id = id)
 
+    override suspend fun updateRankingWithPlayers(rankingWithPlayers: RankingWithPlayers) {
+        updateRanking(ranking = rankingWithPlayers.ranking)
+        updatePlayers(players = rankingWithPlayers.players)
+        deletePlayersNotInRanking(
+            rankingId = rankingWithPlayers.ranking.localId,
+            playerIds = rankingWithPlayers.players.map { it.localId }
+        )
+    }
+
     override suspend fun updateRanking(ranking: RankingEntity) =
         rankingDao.updateRanking(ranking = ranking)
+
+    override fun getPlayer(id: Long): Flow<PlayerEntity?> = playerDao.getPlayer(id = id)
+
+    override suspend fun updatePlayers(players: List<PlayerEntity>) =
+        playerDao.updatePlayers(players = players)
 
     override suspend fun insertPlayer(player: PlayerEntity): Long =
         playerDao.insertPlayer(player = player)
@@ -33,6 +47,9 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
 
     override suspend fun deletePlayer(player: PlayerEntity) =
         playerDao.deletePlayer(player = player)
+
+    override suspend fun deletePlayersNotInRanking(rankingId: Long, playerIds: List<Long>) =
+        playerDao.deletePlayersNotInRanking(rankingId = rankingId, playerIds = playerIds)
 
     override suspend fun getPlayersByRanking(rankingId: Long): List<PlayerEntity> =
         playerDao.getPlayersByRanking(rankingId = rankingId)

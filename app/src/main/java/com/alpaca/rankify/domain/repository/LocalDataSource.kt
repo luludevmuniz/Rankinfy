@@ -10,9 +10,13 @@ interface LocalDataSource {
     fun getAllRankings(): Flow<List<RankingEntity>>
     suspend fun saveRanking(ranking: RankingEntity): Long
     suspend fun deleteRanking(id: Long): Int
+    suspend fun updateRankingWithPlayers(rankingWithPlayers: RankingWithPlayers)
     suspend fun updateRanking(ranking: RankingEntity)
+    fun getPlayer(id: Long): Flow<PlayerEntity?>
     suspend fun insertPlayer(player: PlayerEntity): Long
     suspend fun updatePlayer(player: PlayerEntity)
+    suspend fun updatePlayers(players: List<PlayerEntity>)
     suspend fun deletePlayer(player: PlayerEntity)
     suspend fun getPlayersByRanking(rankingId: Long): List<PlayerEntity>
+    suspend fun deletePlayersNotInRanking(rankingId: Long, playerIds: List<Long>)
 }

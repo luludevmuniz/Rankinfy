@@ -61,7 +61,7 @@ class CreateRankingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val id = async(Dispatchers.IO) {
-                    useCases.createRanking(
+                    useCases.createRank(
                         rankingName = name,
                         rankingAdminPassword = password
                     )

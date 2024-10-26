@@ -8,10 +8,12 @@ import androidx.work.WorkInfo
 import com.alpaca.rankify.domain.model.CreateRankingDTO
 import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
+import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.use_cases.UseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,7 +37,7 @@ class RankingDetailsViewModel @Inject constructor(
     private var syncRemoteRankingJob: Job? = null
     private val _uiState = MutableStateFlow(RankingDetailsUiState())
     val uiState: StateFlow<RankingDetailsUiState> = _uiState.asStateFlow()
-    val ranking: StateFlow<Ranking?> = useCases.getRanking(id = localRankingId)
+    val ranking: StateFlow<Ranking?> = useCases.getRank(id = localRankingId)
         .catch { e ->
             e.printStackTrace()
 
@@ -73,6 +75,7 @@ class RankingDetailsViewModel @Inject constructor(
                 localId = event.localId,
                 remoteId = event.remoteId
             )
+
             is RankingDetailsEvent.UpdatePlayer -> updatePlayer(player = event.player)
             is RankingDetailsEvent.OnNewPlayerNameChange -> changeNewPlayerName(name = event.name)
             is RankingDetailsEvent.OnNewPlayerScoreChange -> changeNewPlayerScore(score = event.score)
@@ -96,7 +99,7 @@ class RankingDetailsViewModel @Inject constructor(
 
     private fun syncRemoteRanking(ranking: Ranking) {
         syncRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
-            useCases.scheduleSyncRanking(ranking = ranking)
+            useCases.scheduleSyncRank(ranking = ranking)
                 .collectLatest { workInfo ->
                     if (workInfo.state == WorkInfo.State.SUCCEEDED) {
                         _uiState.update { state ->
@@ -110,7 +113,7 @@ class RankingDetailsViewModel @Inject constructor(
 
     private fun createRemoteRanking(ranking: Ranking) {
         createRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
-            useCases.scheduleRemoteRankingCreation(
+            useCases.scheduleRemoteRankCreation(
                 ranking = CreateRankingDTO(
                     name = ranking.name,
                     adminPassword = adminPassword.orEmpty(),
@@ -131,7 +134,7 @@ class RankingDetailsViewModel @Inject constructor(
         name: String,
         localId: Long
     ) {
-        useCases.cancelRemoteRankingCreation(
+        useCases.cancelRemoteRankCreation(
             name = name,
             localId = localId
         )
@@ -143,7 +146,7 @@ class RankingDetailsViewModel @Inject constructor(
         localId: Long,
         remoteId: Long
     ) {
-        useCases.cancelSyncRanking(
+        useCases.cancelSyncRank(
             name = name,
             localId = localId,
             remoteId = remoteId
@@ -158,7 +161,7 @@ class RankingDetailsViewModel @Inject constructor(
     ) {
         hideDeleteRankingDialog()
         viewModelScope.launch {
-            val success = useCases.deleteRanking(id = localId) != 0
+            val success = useCases.deleteRank(id = localId) != 0
             if (success) {
                 if (remoteId == null) {
                     cancelRemoteRankingCreation(
@@ -171,30 +174,51 @@ class RankingDetailsViewModel @Inject constructor(
                         localId = localId,
                         remoteId = remoteId
                     )
+                    useCases.scheduleRemoteRankDeletion(rankId = remoteId)
                 }
             }
         }
     }
 
     private fun createPlayer(player: Player) {
-        viewModelScope.launch {
-            useCases.createPlayer(
-                player = player
-            )
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = async {
+                useCases.createPlayer(
+                    player = player
+                )
+            }
+            ranking.value?.remoteId?.let {
+                useCases.scheduleRemotePlayerCreation(
+                    playerId = id.await(),
+                    remoteRankingId = it
+                )
+            }
         }
     }
 
     private fun updatePlayer(player: Player) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             useCases.updatePlayer(
                 player = player
             )
+            player.remoteId?.let {
+                useCases.scheduleRemotePlayerUpdateUseCase(
+                    player = UpdatePlayerDTO(
+                        id = it,
+                        name = player.name,
+                        score = player.score
+                    )
+                )
+            }
         }
     }
 
     private fun deletePlayer(player: Player) {
         viewModelScope.launch {
             useCases.deletePlayer(player = player)
+            player.remoteId?.let { remoteId ->
+                useCases.scheduleRemotePlayerDeletion(playerId = remoteId)
+            }
         }
     }
 
