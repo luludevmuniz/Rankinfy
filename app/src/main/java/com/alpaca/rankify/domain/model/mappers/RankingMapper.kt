@@ -8,6 +8,7 @@ import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
+import kotlinx.collections.immutable.toImmutableList
 
 fun NetworkRanking.asEntity(mobileId: Long? = null) = RankingEntity(
     localId = mobileId ?: 0L,
@@ -25,7 +26,7 @@ fun NetworkRanking.asExternalModel(
     lastUpdated = lastUpdated,
     isAdmin = isAdmin,
     remoteId = apiId,
-    players = players.map { it.asExternalModel(localRankingId = mobileId) }
+    players = players.map { it.asExternalModel(localRankingId = mobileId) }.toImmutableList()
 )
 
 fun NetworkPlayer.asExternalModel(localRankingId: Long) = Player(
@@ -69,7 +70,7 @@ fun RankingWithPlayers.asExternalModel() = Ranking(
     lastUpdated = ranking.lastUpdated,
     isAdmin = ranking.isAdmin,
     remoteId = ranking.remoteId,
-    players = players.map { it.asExternalModel() },
+    players = players.map { it.asExternalModel() }.toImmutableList(),
     adminPassword = ranking.adminPassword
 )
 

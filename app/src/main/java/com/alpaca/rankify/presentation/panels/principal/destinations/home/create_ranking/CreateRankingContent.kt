@@ -1,8 +1,6 @@
 package com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking
 
-import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,24 +24,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import com.alpaca.rankify.R
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
-import com.alpaca.rankify.ui.theme.RankifyTheme
 
 @Composable
 fun CreateRankingContent(
     modifier: Modifier = Modifier,
-    rankingName: String,
-    rankingPassword: String,
-    rankingNameError: Boolean,
-    rankingPasswordError: Boolean,
-    passwordVisible: Boolean,
+    nameState: () -> RankingNameUiState,
+    passwordState: () -> RankingPasswordUiState,
     onRankingNameChange: (String) -> Unit,
     onRankingPasswordChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
     onCreateClick: () -> Unit,
-    isLoading: Boolean = false
+    isLoading: () -> Boolean = { false }
 ) {
     Column(
         modifier = modifier
@@ -58,41 +51,37 @@ fun CreateRankingContent(
             color = MaterialTheme.colorScheme.onSurface
         )
         RankingNameOutlinedTextField(
-            rankingName = rankingName,
+            nameState = nameState,
             onRankingNameChange = { name ->
                 onRankingNameChange(name)
             },
-            rankingNameError = rankingNameError
         )
         PasswordOutlinedTextField(
-            password = rankingPassword,
+            passwordState = passwordState,
             onPasswordChange = { password ->
                 onRankingPasswordChange(password)
             },
-            passwordVisible = passwordVisible,
             onTogglePasswordVisibility = {
                 onTogglePasswordVisibility()
             },
-            isError = rankingPasswordError
         )
         CreateRankingButton(
             modifier = Modifier.align(Alignment.End),
             onCreateClick = {
                 onCreateClick()
             },
-            isLoading
+            isLoading = isLoading
         )
     }
 }
 
 @Composable
 private fun RankingNameOutlinedTextField(
-    rankingName: String,
+    nameState: () -> RankingNameUiState,
     onRankingNameChange: (String) -> Unit,
-    rankingNameError: Boolean
 ) {
     OutlinedTextField(
-        value = rankingName,
+        value = nameState().value,
         onValueChange = { name ->
             onRankingNameChange(name)
         },
@@ -100,27 +89,25 @@ private fun RankingNameOutlinedTextField(
             Text(text = stringResource(R.string.nome_do_ranking))
         },
         singleLine = true,
-        isError = rankingNameError,
+        isError = nameState().error,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
     )
 }
 
 @Composable
 private fun PasswordOutlinedTextField(
-    password: String,
+    passwordState: () -> RankingPasswordUiState,
     onPasswordChange: (String) -> Unit,
-    passwordVisible: Boolean,
     onTogglePasswordVisibility: () -> Unit,
-    isError: Boolean
 ) {
     OutlinedTextField(
-        value = password,
+        value = passwordState().value,
         onValueChange = onPasswordChange,
         label = {
             Text(text = stringResource(R.string.senha_do_administrador))
         },
         singleLine = true,
-        visualTransformation = if (passwordVisible) VisualTransformation.None
+        visualTransformation = if (passwordState().isVisible) VisualTransformation.None
         else PasswordVisualTransformation(),
         leadingIcon = {
             Icon(
@@ -133,7 +120,7 @@ private fun PasswordOutlinedTextField(
                 onClick = onTogglePasswordVisibility
             ) {
                 Icon(
-                    imageVector = if (passwordVisible) Icons.Default.Visibility
+                    imageVector = if (passwordState().isVisible) Icons.Default.Visibility
                     else Icons.Default.VisibilityOff,
                     contentDescription = stringResource(R.string.change_password_visibility)
                 )
@@ -142,7 +129,7 @@ private fun PasswordOutlinedTextField(
         supportingText = {
             Text(text = stringResource(R.string.a_senha_deve_conter_no_minimo_6_digitos))
         },
-        isError = isError
+        isError = passwordState().error
     )
 }
 
@@ -150,7 +137,7 @@ private fun PasswordOutlinedTextField(
 private fun CreateRankingButton(
     modifier: Modifier = Modifier,
     onCreateClick: () -> Unit,
-    isLoading: Boolean
+    isLoading: () -> Boolean
 ) {
     FilledTonalButton(
         modifier = modifier.animateContentSize(),
@@ -158,7 +145,7 @@ private fun CreateRankingButton(
             onCreateClick()
         },
     ) {
-        if (isLoading) {
+        if (isLoading()) {
             CircularProgressIndicator()
         } else {
             Text(text = "Criar ranking")
@@ -166,23 +153,23 @@ private fun CreateRankingButton(
     }
 }
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun CreateRankingContentPrev() {
-    RankifyTheme {
-        CreateRankingContent(
-            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
-            onCreateClick = { },
-            rankingName = "",
-            rankingPassword = "",
-            rankingNameError = false,
-            rankingPasswordError = false,
-            passwordVisible = false,
-            onRankingNameChange = {},
-            onRankingPasswordChange = {},
-            onTogglePasswordVisibility = {},
-            isLoading = false
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Composable
+//private fun CreateRankingContentPrev() {
+//    RankifyTheme {
+//        CreateRankingContent(
+//            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
+//            onCreateClick = { },
+//            rankingName = "",
+//            rankingPassword = "",
+//            rankingNameError = false,
+//            rankingPasswordError = false,
+//            passwordVisible = false,
+//            onRankingNameChange = {},
+//            onRankingPasswordChange = {},
+//            onTogglePasswordVisibility = {},
+//            isLoading = false
+//        )
+//    }
+//}

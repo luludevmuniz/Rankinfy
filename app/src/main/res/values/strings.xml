@@ -23,4 +23,7 @@
     <string name="title_activity_main2">MainActivity2</string>
     <string name="change_password_visibility">Change password visibility</string>
     <string name="novo_ranking">Novo ranking</string>
+    <string name="adicione_jogadores">Adicione jogadores</string>
+    <string name="clique_no_bot_o_flutuante_no_canto_inferior_da_tela_para_adicionar_jogadores_ao_ranking">Clique no botão flutuante no canto inferior da tela para adicionar jogadores ao ranking.</string>
+    <string name="os_administradores_do_ranking_ainda_n_o_adicionaram_jogadores">Os administradores do ranking ainda não adicionaram jogadores.</string>
 </resources>

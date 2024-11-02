@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,21 +28,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import com.alpaca.rankify.ui.theme.EXTRA_LARGE_PADDING
-import com.alpaca.rankify.ui.theme.RankifyTheme
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerDialog(
     modifier: Modifier = Modifier,
-    playerName: String,
-    playerScore: String,
+    playerName: () -> String,
+    playerScore: () -> String,
     title: String,
     icon: ImageVector,
-    isNameWithError: Boolean = false,
-    isScoreWithError: Boolean = false,
+    isNameWithError: () -> Boolean = { false },
+    isScoreWithError: () -> Boolean = { false },
     onPlayerNameChange: (String) -> Unit,
     onPlayerScoreChange: (String) -> Unit,
     onConfirmClick: () -> Unit,
@@ -72,7 +69,7 @@ fun PlayerDialog(
                 style = MaterialTheme.typography.titleMedium
             )
             OutlinedTextField(
-                value = playerName,
+                value = playerName(),
                 onValueChange = {
                     onPlayerNameChange(it)
                 },
@@ -90,10 +87,10 @@ fun PlayerDialog(
                     capitalization = KeyboardCapitalization.Words,
                     keyboardType = KeyboardType.Text
                 ),
-                isError = isNameWithError
+                isError = isNameWithError()
             )
             OutlinedTextField(
-                value = playerScore,
+                value = playerScore(),
                 onValueChange = {
                     onPlayerScoreChange(it)
                 },
@@ -108,7 +105,7 @@ fun PlayerDialog(
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                isError = isScoreWithError
+                isError = isScoreWithError()
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -133,21 +130,21 @@ fun PlayerDialog(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun CreatePlayerDialogPrev() {
-    RankifyTheme {
-        PlayerDialog(
-            playerName = "",
-            playerScore = "",
-            title = "Criar jogador",
-            icon = Icons.Default.AddCircle,
-            isNameWithError = false,
-            isScoreWithError = false,
-            onPlayerNameChange = {},
-            onPlayerScoreChange = {},
-            onConfirmClick = {},
-            onDismissRequest = {}
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun CreatePlayerDialogPrev() {
+//    RankifyTheme {
+//        PlayerDialog(
+//            playerName = "",
+//            playerScore = "",
+//            title = "Criar jogador",
+//            icon = Icons.Default.AddCircle,
+//            isNameWithError = false,
+//            isScoreWithError = false,
+//            onPlayerNameChange = {},
+//            onPlayerScoreChange = {},
+//            onConfirmClick = {},
+//            onDismissRequest = {}
+//        )
+//    }
+//}

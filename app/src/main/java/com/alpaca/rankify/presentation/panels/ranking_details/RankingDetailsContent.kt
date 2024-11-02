@@ -21,8 +21,15 @@ import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,102 +41,121 @@ import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.presentation.common.SwipeBox
 import com.alpaca.rankify.presentation.panels.ranking_details.component.RankingItem
 import com.alpaca.rankify.ui.theme.EXTRA_LARGE_PADDING
-import com.alpaca.rankify.ui.theme.RankifyTheme
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
+import com.alpaca.rankify.ui.theme.RankifyTheme
 import com.alpaca.rankify.ui.theme.SMALL_PADDING
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RankingContent(
     modifier: Modifier = Modifier,
-    uiState: RankingDetailsUiState,
-    ranking: Ranking,
+    uiState: () -> RankingDetailsUiState,
+    ranking: Ranking = Ranking(),
     onDeletePlayer: (Player) -> Unit,
     onEditPlayer: (Player) -> Unit
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(all = MEDIUM_PADDING)
-            .animateContentSize(),
-        verticalArrangement = Arrangement.spacedBy(EXTRA_LARGE_PADDING)
-    ) {
-        if (uiState.isSyncing) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                state = rememberTooltipState(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(text = stringResource(R.string.o_aplicativo_esta_sendo_sincronizado_com_o_servidor_as_informa_es_podem_estar_desatualizadas))
-                    }
-                }
-            ) {
-                Icon(
-                    modifier = Modifier.size(48.dp),
-                    imageVector = Icons.Default.Warning,
-                    tint = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
-                    contentDescription = "Conteúdo não sincronizado"
-                )
+    var isRefreshing by remember { mutableStateOf(false) }
+    val state = rememberPullToRefreshState()
+    val scope = rememberCoroutineScope()
+
+    PullToRefreshBox(
+        modifier = modifier,
+        state = state,
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = false
+            scope.launch {
+                state.animateToHidden()
             }
-        }
-        if (ranking.formattedLastUpdated.isBlank()) {
-            Text(
-                text = stringResource(R.string.o_ranking_ainda_nao_foi_salvo_no_servidor),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        } else {
-            Text(
-                text = stringResource(
-                    R.string.ultima_atualizacao,
-                    ranking.formattedLastUpdated
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        if (ranking.players.isEmpty()) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(SMALL_PADDING),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = MEDIUM_PADDING)
+                .animateContentSize(),
+            verticalArrangement = Arrangement.spacedBy(EXTRA_LARGE_PADDING)
+        ) {
+            if (uiState().isSyncing) {
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     state = rememberTooltipState(),
                     tooltip = {
-                        if (ranking.isAdmin) {
-                            RichTooltip(
-                                title = {
-                                    Text(text = "Adicione jogadores")
-                                }
-                            ) {
-                                Text("Clique no botão flutuante no canto inferior da tela para adicionar jogadores ao ranking.")
-                            }
-                        } else {
-                            PlainTooltip {
-                                Text(text = "Os administradores do ranking ainda não adicionaram jogadores.")
-                            }
+                        PlainTooltip {
+                            Text(text = stringResource(R.string.o_aplicativo_esta_sendo_sincronizado_com_o_servidor_as_informa_es_podem_estar_desatualizadas))
                         }
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
+                        modifier = Modifier.size(48.dp),
+                        imageVector = Icons.Default.Warning,
+                        tint = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
+                        contentDescription = "Conteúdo não sincronizado"
                     )
                 }
-                Text(
-                    text = stringResource(R.string.ainda_nao_hajogadores_registrados_no_ranking),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+            }
+            Text(
+                text = if (ranking.formattedLastUpdated.isBlank())
+                    stringResource(R.string.o_ranking_ainda_nao_foi_salvo_no_servidor) else
+                    stringResource(
+                        R.string.ultima_atualizacao,
+                        ranking.formattedLastUpdated
+                    ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            if (ranking.players.isEmpty()) {
+                EmptyPlayerListContent(isAdmin = ranking.isAdmin)
+            } else {
+                PlayersList(
+                    players = ranking.sortedPlayers,
+                    canEdit = ranking.isAdmin,
+                    onDeletePlayer = { onDeletePlayer(it) },
+                    onEditPlayer = { onEditPlayer(it) }
                 )
             }
-        } else {
-            PlayersList(
-                players = ranking.sortedPlayers,
-                canEdit = ranking.isAdmin,
-                onDeletePlayer = onDeletePlayer,
-                onEditPlayer = onEditPlayer
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun EmptyPlayerListContent(isAdmin: Boolean) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(SMALL_PADDING),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+            state = rememberTooltipState(),
+            tooltip = {
+                if (isAdmin) {
+                    RichTooltip(
+                        title = {
+                            Text(text = stringResource(R.string.adicione_jogadores))
+                        }
+                    ) {
+                        Text(stringResource(R.string.clique_no_bot_o_flutuante_no_canto_inferior_da_tela_para_adicionar_jogadores_ao_ranking))
+                    }
+                } else {
+                    PlainTooltip {
+                        Text(text = stringResource(R.string.os_administradores_do_ranking_ainda_n_o_adicionaram_jogadores))
+                    }
+                }
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
+        Text(
+            text = stringResource(R.string.ainda_nao_hajogadores_registrados_no_ranking),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

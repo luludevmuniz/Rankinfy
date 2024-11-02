@@ -35,7 +35,8 @@ fun HomeScreen(
     val snackbarHostState = remember {
         SnackbarHostState()
     }
-    val createRankingUiState by createRankingViewModel.uiState.collectAsStateWithLifecycle()
+    val rankingNameUiState by createRankingViewModel.rankingNameUiState.collectAsStateWithLifecycle()
+    val rankingPasswordUiState by createRankingViewModel.rankingPasswordUiState.collectAsStateWithLifecycle()
     val searchRankingUiState by searchRankingViewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = rememberUpdatedState(newValue = LocalLifecycleOwner.current)
     LaunchedEffect(lifecycleOwner.value.lifecycle) {
@@ -77,8 +78,9 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            createRankingUiState = createRankingUiState,
-            searchRankingUiState = searchRankingUiState,
+            nameState = { rankingNameUiState },
+            passwordState = { rankingPasswordUiState },
+            searchRankingUiState = { searchRankingUiState },
             onUpdateRankingName = { name ->
                 createRankingViewModel.onEvent(UpdateRankingName(name = name))
             },
@@ -89,7 +91,7 @@ fun HomeScreen(
                 createRankingViewModel.onEvent(TogglePasswordVisibility)
             },
             onCreateRanking = {
-                createRankingViewModel.onEvent(CreateRanking(name = createRankingUiState.rankingName))
+                createRankingViewModel.onEvent(CreateRanking(name = rankingNameUiState.value))
             },
             onUpdateSearchedId = { id ->
                 searchRankingViewModel.onEvent(UpdateSearchedId(id = id))

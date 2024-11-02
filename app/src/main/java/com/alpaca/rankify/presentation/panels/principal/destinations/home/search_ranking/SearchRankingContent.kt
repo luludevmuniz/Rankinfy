@@ -11,18 +11,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import com.alpaca.rankify.R
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
-import com.alpaca.rankify.ui.theme.RankifyTheme
 
 @Composable
 fun SearchRankingContent(
     modifier: Modifier = Modifier,
-    rankingIdError: Boolean,
-    rankingId: String,
-    onRankingIdChange: (String) -> Unit,
-    onSearchRankingClick: () -> Unit
+    searchRankingUiState: () -> SearchRankingUiState,
+    onRankingIdChange: (String) -> Unit = {},
+    onSearchRankingClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier,
@@ -32,7 +29,7 @@ fun SearchRankingContent(
         )
     ) {
         OutlinedTextField(
-            value = rankingId,
+            value = searchRankingUiState().rankingId,
             onValueChange = onRankingIdChange,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             label = {
@@ -45,7 +42,7 @@ fun SearchRankingContent(
             prefix = {
                 Text("#")
             },
-            isError = rankingIdError
+            isError = searchRankingUiState().rankingIdError
         )
         FilledTonalButton(
             modifier = Modifier.align(Alignment.End),
@@ -56,15 +53,15 @@ fun SearchRankingContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun SearchRankingContentPrev() {
-    RankifyTheme {
-        SearchRankingContent(
-            rankingIdError = false,
-            rankingId = "123",
-            onRankingIdChange = { },
-            onSearchRankingClick = { }
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun SearchRankingContentPrev() {
+//    RankifyTheme {
+//        SearchRankingContent(
+//            rankingIdError = false,
+//            rankingId = "123",
+//            onRankingIdChange = { },
+//            onSearchRankingClick = { }
+//        )
+//    }
+//}

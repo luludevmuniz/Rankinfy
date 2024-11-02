@@ -1,13 +1,13 @@
 package com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking
 
-import androidx.compose.runtime.Stable
-
-@Stable
-data class CreateRankingUiState(
-    val isLoading: Boolean = false,
-    val rankingName: String = "",
-    val rankingPassword: String = "",
-    val rankingNameError: Boolean = false,
-    val rankingPasswordError: Boolean = false,
-    val isPasswordVisible: Boolean = false
+data class RankingNameUiState(
+    val value: String = "",
+    val error: Boolean = false
 )
+
+data class RankingPasswordUiState(
+    val value: String = "",
+    val error: Boolean = false,
+    val isVisible: Boolean = false
+)
+

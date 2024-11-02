@@ -29,8 +29,12 @@ import javax.inject.Inject
 class CreateRankingViewModel @Inject constructor(
     private val useCases: UseCases
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CreateRankingUiState())
-    val uiState = _uiState.asStateFlow()
+    private val _rankingNameUiState = MutableStateFlow(RankingNameUiState())
+    val rankingNameUiState = _rankingNameUiState.asStateFlow()
+    private val _rankingPasswordUiState = MutableStateFlow(RankingPasswordUiState())
+    val rankingPasswordUiState = _rankingPasswordUiState.asStateFlow()
+//    private val _uiState = MutableStateFlow(CreateRankingUiState())
+//    val uiState = _uiState.asStateFlow()
     private val _navigationEvent = MutableSharedFlow<RankingCreated>()
     val navigationEvent = _navigationEvent.asSharedFlow()
 
@@ -52,10 +56,10 @@ class CreateRankingViewModel @Inject constructor(
     private fun createRanking(
         name: String
     ) {
-        val password = uiState.value.rankingPassword
+        val password = rankingPasswordUiState.value.value
         validateRankingName(name = name)
         validateRankingPassword(password = password)
-        if (uiState.value.rankingNameError || uiState.value.rankingPasswordError) {
+        if (rankingPasswordUiState.value.error || rankingPasswordUiState.value.error) {
             return
         }
         viewModelScope.launch {
@@ -96,87 +100,84 @@ class CreateRankingViewModel @Inject constructor(
     }
 
     private fun showLoading() {
-        _uiState.update { state ->
-            state.copy(
-                isLoading = true
-            )
-        }
+//        _uiState.update { state ->
+//            state.copy(
+//                isLoading = true
+//            )
+//        }
     }
 
     private fun hideLoading() {
-        _uiState.update { state ->
-            state.copy(
-                isLoading = false
-            )
-        }
+//        _uiState.update { state ->
+//            state.copy(
+//                isLoading = false
+//            )
+//        }
     }
 
     private fun showRankingNameError() {
-        _uiState.update { state ->
-            state.copy(
-                rankingNameError = true
-            )
+        _rankingNameUiState.update { state ->
+            state.copy(error = true)
         }
     }
 
     private fun hideRankingNameError() {
-        _uiState.update { state ->
-            state.copy(
-                rankingNameError = false
-            )
+        _rankingNameUiState.update { state ->
+            state.copy(error = false)
         }
     }
 
     private fun showRankingPasswordError() {
-        _uiState.update { state ->
-            state.copy(
-                rankingPasswordError = true
-            )
+        _rankingPasswordUiState.update { state ->
+            state.copy(error = true)
         }
     }
 
     private fun hideRankingPasswordError() {
-        _uiState.update { state ->
-            state.copy(
-                rankingPasswordError = false
-            )
+        _rankingPasswordUiState.update { state ->
+            state.copy(error = false)
         }
     }
 
     private fun updateRankingName(name: String) {
-        _uiState.update { state ->
+        _rankingNameUiState.update { state ->
             state.copy(
-                rankingName = name,
-                rankingNameError = if (state.rankingNameError && name.isNotEmpty()) false
-                else state.rankingNameError
-            )
+                    value = name,
+                    error = if (state.error && name.isNotEmpty()) false else state.error
+                )
+
         }
     }
 
     private fun updateRankingPassword(password: String) {
-        _uiState.update { state ->
+        _rankingPasswordUiState.update { state ->
             state.copy(
-                rankingPassword = password,
-                rankingPasswordError = if (state.rankingPasswordError && password.length >= 6) false
-                else state.rankingPasswordError
-            )
+                    value = password,
+                    error = if (state.error && password.length >= 6) false else state.error
+                )
         }
     }
 
     private fun togglePasswordVisibility() {
-        _uiState.update { state ->
+        _rankingPasswordUiState.update { state ->
             state.copy(
-                isPasswordVisible = !state.isPasswordVisible
+                isVisible = state.isVisible.not()
             )
         }
     }
 
     private fun resetUiState() {
-        _uiState.update { state ->
+        _rankingNameUiState.update { state ->
             state.copy(
-                isLoading = false,
-                rankingName = "",
-                rankingPassword = "",
+                value = "",
+                error = false
+            )
+        }
+        _rankingPasswordUiState.update { state ->
+            state.copy(
+                value = "",
+                error = false,
+                isVisible = false
             )
         }
     }

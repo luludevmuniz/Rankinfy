@@ -55,7 +55,7 @@ android {
 }
 
 composeCompiler {
-    enableStrongSkippingMode = true
+    enableStrongSkippingMode = false
 }
 
 dependencies {
@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.collections.immutable)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(libs.hilt.work)
