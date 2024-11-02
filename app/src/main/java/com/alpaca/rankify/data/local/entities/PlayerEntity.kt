@@ -17,7 +17,7 @@ import com.alpaca.rankify.util.Constants.PLAYER_TABLE
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["ranking_id"])]
+    indices = [Index(value = ["ranking_id"]), Index(value = ["remote_id"], unique = true)]
 )
 data class PlayerEntity(
     @PrimaryKey(autoGenerate = true)

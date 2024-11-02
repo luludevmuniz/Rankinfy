@@ -3,6 +3,7 @@ package com.alpaca.rankify.domain.model.mappers
 import com.alpaca.rankify.data.local.entities.PlayerEntity
 import com.alpaca.rankify.data.local.entities.RankingEntity
 import com.alpaca.rankify.data.local.entities.RankingWithPlayers
+import com.alpaca.rankify.data.remote.models.NetworkPlayer
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.Player
@@ -24,7 +25,15 @@ fun NetworkRanking.asExternalModel(
     lastUpdated = lastUpdated,
     isAdmin = isAdmin,
     remoteId = apiId,
-    players = players
+    players = players.map { it.asExternalModel(localRankingId = mobileId) }
+)
+
+fun NetworkPlayer.asExternalModel(localRankingId: Long) = Player(
+    remoteId = id,
+    rankingId = localRankingId,
+    name = name,
+    currentRankingPosition = currentRankingPosition,
+    score = score
 )
 
 fun Ranking.asEntity() = RankingEntity(

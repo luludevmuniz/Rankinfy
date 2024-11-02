@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 class ScheduleRemoteRankDeletionUseCase(
     private val repository: Repository
 ) {
-    operator fun invoke(rankId: Long): Flow<WorkInfo> =
+    operator fun invoke(rankId: Long): Flow<WorkInfo?> =
         repository.scheduleRemoteRankDeletion(rankId = rankId)
 }

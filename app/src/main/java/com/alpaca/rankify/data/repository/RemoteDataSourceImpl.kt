@@ -4,7 +4,6 @@ import com.alpaca.rankify.data.remote.ApiService
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.CreateRankingDTO
-import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.repository.RemoteDataSource
 
@@ -24,7 +23,6 @@ class RemoteDataSourceImpl(
         )
 
     override suspend fun deleteRanking(id: Long) = apiService.deleteRanking(id = id)
-
 
     override suspend fun createPlayer(player: CreatePlayerDTO): Long =
         apiService.createPlayer(player = player)

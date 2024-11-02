@@ -56,7 +56,7 @@ fun RankingContent(
     ) {
         if (uiState.isSyncing) {
             TooltipBox(
-                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 state = rememberTooltipState(),
                 tooltip = {
                     PlainTooltip {
@@ -92,7 +92,7 @@ fun RankingContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TooltipBox(
-                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     state = rememberTooltipState(),
                     tooltip = {
                         if (ranking.isAdmin) {

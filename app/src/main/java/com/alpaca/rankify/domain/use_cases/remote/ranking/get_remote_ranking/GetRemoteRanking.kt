@@ -1,9 +1,9 @@
-package com.alpaca.rankify.domain.use_cases.remote.rank.get_remote_rank
+package com.alpaca.rankify.domain.use_cases.remote.ranking.get_remote_ranking
 
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.data.repository.Repository
 
-class GetRemoteRank(
+class GetRemoteRanking(
     private val repository: Repository
 ) {
     suspend operator fun invoke(

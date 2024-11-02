@@ -3,7 +3,6 @@ package com.alpaca.rankify.data.remote
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.CreateRankingDTO
-import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.util.Constants.PARAMETER_ID
 import com.alpaca.rankify.util.Constants.PARAMETER_PASSWORD

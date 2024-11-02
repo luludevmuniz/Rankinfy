@@ -3,7 +3,6 @@ package com.alpaca.rankify.domain.repository
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.CreateRankingDTO
-import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 
 interface RemoteDataSource {

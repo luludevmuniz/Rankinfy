@@ -2,25 +2,23 @@ package com.alpaca.rankify.presentation.panels.principal.destinations.home.creat
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,8 +28,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.alpaca.rankify.R
-import com.alpaca.rankify.ui.theme.RankifyTheme
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
+import com.alpaca.rankify.ui.theme.RankifyTheme
 
 @Composable
 fun CreateRankingContent(
@@ -48,16 +46,16 @@ fun CreateRankingContent(
     isLoading: Boolean = false
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(
-            space = MEDIUM_PADDING,
-            alignment = Alignment.CenterVertically
-        )
+        verticalArrangement = Arrangement.spacedBy(space = MEDIUM_PADDING)
     ) {
         Text(
-            text = stringResource(R.string.criar_ranking),
-            style = MaterialTheme.typography.titleLarge
+            text = stringResource(R.string.novo_ranking),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
         RankingNameOutlinedTextField(
             rankingName = rankingName,
@@ -78,6 +76,7 @@ fun CreateRankingContent(
             isError = rankingPasswordError
         )
         CreateRankingButton(
+            modifier = Modifier.align(Alignment.End),
             onCreateClick = {
                 onCreateClick()
             },
@@ -87,38 +86,26 @@ fun CreateRankingContent(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun RankingNameOutlinedTextField(
     rankingName: String,
     onRankingNameChange: (String) -> Unit,
     rankingNameError: Boolean
 ) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        state = rememberTooltipState(),
-        tooltip = {
-            PlainTooltip {
-                Text(text = stringResource(R.string.nome_que_os_participantes_deverao_pesquisar_para_encontrar_ranking))
-            }
-        }
-    ) {
-        OutlinedTextField(
-            value = rankingName,
-            onValueChange = { name ->
-                onRankingNameChange(name)
-            },
-            label = {
-                Text(text = stringResource(R.string.nome_do_ranking))
-            },
-            singleLine = true,
-            isError = rankingNameError,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-        )
-    }
+    OutlinedTextField(
+        value = rankingName,
+        onValueChange = { name ->
+            onRankingNameChange(name)
+        },
+        label = {
+            Text(text = stringResource(R.string.nome_do_ranking))
+        },
+        singleLine = true,
+        isError = rankingNameError,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+    )
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun PasswordOutlinedTextField(
     password: String,
     onPasswordChange: (String) -> Unit,
@@ -126,59 +113,50 @@ private fun PasswordOutlinedTextField(
     onTogglePasswordVisibility: () -> Unit,
     isError: Boolean
 ) {
-    TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        state = rememberTooltipState(),
-        tooltip = {
-            PlainTooltip {
-                Text(text = stringResource(R.string.somente_quem_tem_a_senha_do_administrador_pode_editar_o_ranking))
-            }
-        }
-    ) {
-        OutlinedTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            label = {
-                Text(text = stringResource(R.string.senha_do_administrador))
-            },
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(),
-            leadingIcon = {
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        label = {
+            Text(text = stringResource(R.string.senha_do_administrador))
+        },
+        singleLine = true,
+        visualTransformation = if (passwordVisible) VisualTransformation.None
+        else PasswordVisualTransformation(),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Lock,
+                contentDescription = null
+            )
+        },
+        trailingIcon = {
+            IconButton(
+                onClick = onTogglePasswordVisibility
+            ) {
                 Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null
+                    imageVector = if (passwordVisible) Icons.Default.Visibility
+                    else Icons.Default.VisibilityOff,
+                    contentDescription = stringResource(R.string.change_password_visibility)
                 )
-            },
-            trailingIcon = {
-                IconButton(
-                    onClick = onTogglePasswordVisibility
-                ) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility
-                        else Icons.Default.VisibilityOff,
-                        contentDescription = null
-                    )
-                }
-            },
-            supportingText = {
-                Text(text = stringResource(R.string.a_senha_deve_conter_no_minimo_6_digitos))
-            },
-            isError = isError
-        )
-    }
+            }
+        },
+        supportingText = {
+            Text(text = stringResource(R.string.a_senha_deve_conter_no_minimo_6_digitos))
+        },
+        isError = isError
+    )
 }
 
 @Composable
 private fun CreateRankingButton(
+    modifier: Modifier = Modifier,
     onCreateClick: () -> Unit,
     isLoading: Boolean
 ) {
     FilledTonalButton(
-        modifier = Modifier.animateContentSize(),
+        modifier = modifier.animateContentSize(),
         onClick = {
             onCreateClick()
-        }
+        },
     ) {
         if (isLoading) {
             CircularProgressIndicator()
@@ -194,6 +172,7 @@ private fun CreateRankingButton(
 private fun CreateRankingContentPrev() {
     RankifyTheme {
         CreateRankingContent(
+            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
             onCreateClick = { },
             rankingName = "",
             rankingPassword = "",

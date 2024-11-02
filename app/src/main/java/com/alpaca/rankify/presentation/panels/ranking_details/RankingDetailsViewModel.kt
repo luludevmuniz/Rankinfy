@@ -1,6 +1,5 @@
 package com.alpaca.rankify.presentation.panels.ranking_details
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -71,7 +70,6 @@ class RankingDetailsViewModel @Inject constructor(
         when (event) {
             is RankingDetailsEvent.CreatePlayer -> createPlayer(player = event.player)
             is RankingDetailsEvent.DeleteRanking -> deleteRanking(
-                name = event.name,
                 localId = event.localId,
                 remoteId = event.remoteId
             )
@@ -101,7 +99,7 @@ class RankingDetailsViewModel @Inject constructor(
         syncRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
             useCases.scheduleSyncRank(ranking = ranking)
                 .collectLatest { workInfo ->
-                    if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                    if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                         _uiState.update { state ->
                             state.copy(isSyncing = false)
                         }
@@ -120,7 +118,7 @@ class RankingDetailsViewModel @Inject constructor(
                     mobileId = ranking.localId
                 )
             ).collectLatest { workInfo ->
-                if (workInfo.state == WorkInfo.State.SUCCEEDED) {
+                if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                     _uiState.update { state ->
                         state.copy(isSyncing = false)
                     }
@@ -130,52 +128,17 @@ class RankingDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun cancelRemoteRankingCreation(
-        name: String,
-        localId: Long
-    ) {
-        useCases.cancelRemoteRankCreation(
-            name = name,
-            localId = localId
-        )
-        createRemoteRankingJob = null
-    }
-
-    private fun cancelSyncRanking(
-        name: String,
-        localId: Long,
-        remoteId: Long
-    ) {
-        useCases.cancelSyncRank(
-            name = name,
-            localId = localId,
-            remoteId = remoteId
-        )
-        syncRemoteRankingJob = null
-    }
-
     private fun deleteRanking(
-        name: String,
         localId: Long,
         remoteId: Long?
     ) {
         hideDeleteRankingDialog()
-        viewModelScope.launch {
-            val success = useCases.deleteRank(id = localId) != 0
-            if (success) {
-                if (remoteId == null) {
-                    cancelRemoteRankingCreation(
-                        name = name,
-                        localId = localId
-                    )
-                } else {
-                    cancelSyncRanking(
-                        name = name,
-                        localId = localId,
-                        remoteId = remoteId
-                    )
-                    useCases.scheduleRemoteRankDeletion(rankId = remoteId)
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            val success = async {
+                useCases.deleteRank(id = localId) != 0
+            }.await()
+            if (success && remoteId != null) {
+                useCases.scheduleRemoteRankDeletion(rankId = remoteId)
             }
         }
     }
@@ -187,11 +150,13 @@ class RankingDetailsViewModel @Inject constructor(
                     player = player
                 )
             }
-            ranking.value?.remoteId?.let {
-                useCases.scheduleRemotePlayerCreation(
-                    playerId = id.await(),
-                    remoteRankingId = it
-                )
+            ranking.value?.let { ranking ->
+                if (ranking.remoteId != null) {
+                    useCases.scheduleRemotePlayerCreation(
+                        playerId = id.await(),
+                        ranking = ranking
+                    )
+                }
             }
         }
     }
@@ -201,14 +166,17 @@ class RankingDetailsViewModel @Inject constructor(
             useCases.updatePlayer(
                 player = player
             )
-            player.remoteId?.let {
-                useCases.scheduleRemotePlayerUpdateUseCase(
-                    player = UpdatePlayerDTO(
-                        id = it,
-                        name = player.name,
-                        score = player.score
+            ranking.value?.let { ranking ->
+                player.remoteId?.let { remotePlayerId ->
+                    useCases.scheduleRemotePlayerUpdateUseCase(
+                        player = UpdatePlayerDTO(
+                            id = remotePlayerId,
+                            name = player.name,
+                            score = player.score
+                        ),
+                        ranking = ranking
                     )
-                )
+                }
             }
         }
     }
@@ -216,8 +184,13 @@ class RankingDetailsViewModel @Inject constructor(
     private fun deletePlayer(player: Player) {
         viewModelScope.launch {
             useCases.deletePlayer(player = player)
-            player.remoteId?.let { remoteId ->
-                useCases.scheduleRemotePlayerDeletion(playerId = remoteId)
+            ranking.value?.let { ranking ->
+                player.remoteId?.let { remotePlayerId ->
+                    useCases.scheduleRemotePlayerDeletion(
+                        playerId = remotePlayerId,
+                        ranking = ranking
+                    )
+                }
             }
         }
     }
@@ -335,12 +308,5 @@ class RankingDetailsViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(isPlayerDialogScoreFieldWithError = false)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("RankingDetailsViewModel", "onCleared")
-        createRemoteRankingJob?.cancel()
-        syncRemoteRankingJob?.cancel()
     }
 }

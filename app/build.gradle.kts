@@ -39,6 +39,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs = freeCompilerArgs + listOf(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" + buildDir.absolutePath + "/compose_metrics"
+        )
     }
     buildFeatures {
         compose = true
@@ -78,6 +82,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.android)
     implementation(libs.hilt.work)
+    implementation(libs.androidx.ui.text.google.fonts)
     ksp(libs.room.compiler)
     ksp(libs.hilt.compiler)
     ksp(libs.hilt.android.compiler)

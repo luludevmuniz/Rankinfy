@@ -23,7 +23,6 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingViewModel
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.SearchRanking
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedId
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedName
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingViewModel
 import kotlinx.coroutines.launch
 
@@ -91,9 +90,6 @@ fun HomeScreen(
             },
             onCreateRanking = {
                 createRankingViewModel.onEvent(CreateRanking(name = createRankingUiState.rankingName))
-            },
-            onUpdateSearchedName = { name ->
-                searchRankingViewModel.onEvent(UpdateSearchedName(name = name))
             },
             onUpdateSearchedId = { id ->
                 searchRankingViewModel.onEvent(UpdateSearchedId(id = id))

@@ -1,8 +1,6 @@
 package com.alpaca.rankify.data.repository
 
-import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -27,10 +25,10 @@ import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.repository.LocalDataSource
 import com.alpaca.rankify.domain.repository.RemoteDataSource
 import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_CREATE_REMOTE_PLAYER
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_CREATE_REMOTE_RANK
+import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_CREATE_REMOTE_RANKING
 import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_DELETE_REMOTE_PLAYER
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_DELETE_REMOTE_RANK
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_SYNC_REMOTE_RANK
+import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_DELETE_REMOTE_RANKING
+import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING
 import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_UPDATE_REMOTE_PLAYER
 import com.alpaca.rankify.util.Constants.WORK_DATA_ADMIN_PASSWORD
 import com.alpaca.rankify.util.Constants.WORK_DATA_IS_ADMIN
@@ -39,6 +37,7 @@ import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_ID
 import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_NAME
 import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_SCORE
 import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
+import com.alpaca.rankify.util.Constants.WORK_MANAGER_DEFAULT_CONSTRAINTS
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -68,9 +67,19 @@ constructor(
     suspend fun updateRankingWithPlayers(ranking: Ranking) {
         val rankingWithPlayers = RankingWithPlayers(
             ranking = ranking.asEntity(),
-            players = ranking.players.map { it.asEntity() }
+            players = ranking.players.map {
+                it.asEntity()
+            }
         )
         local.updateRankingWithPlayers(rankingWithPlayers = rankingWithPlayers)
+    }
+
+    private suspend fun saveRankingWithPlayers(ranking: Ranking): Long {
+        val rankingWithPlayers = RankingWithPlayers(
+            ranking = ranking.asEntity(),
+            players = ranking.players.map { it.asEntity() }
+        )
+        return local.saveRankingWithPlayers(rankingWithPlayers = rankingWithPlayers)
     }
 
     fun getRanking(id: Long): Flow<Ranking?> =
@@ -122,6 +131,10 @@ constructor(
         updatePlayersPositionInRanking(rankingId = player.rankingId)
     }
 
+    suspend fun deleteAllPlayers(rankingId: Long) {
+        local.deleteAllPlayers(rankingId = rankingId)
+    }
+
     suspend fun deleteRemotePlayer(id: Long) = remote.deletePlayer(id = id)
 
     suspend fun updatePlayer(player: Player) {
@@ -133,7 +146,7 @@ constructor(
 
     suspend fun searchRanking(id: Long): Long {
         val ranking = remote.getRanking(id = id)
-        return local.saveRanking(ranking = ranking.asEntity())
+        return saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
     }
 
     private suspend fun updatePlayersPositionInRanking(rankingId: Long) {
@@ -157,36 +170,34 @@ constructor(
             }
     }
 
-    fun scheduleRemoteRankingCreation(ranking: CreateRankingDTO): Flow<WorkInfo> {
+    fun scheduleRemoteRankingCreation(ranking: CreateRankingDTO): Flow<WorkInfo?> {
         val data =
             workDataOf(
                 WORK_DATA_LOCAL_RANKING_ID to ranking.mobileId,
                 WORK_DATA_ADMIN_PASSWORD to ranking.adminPassword,
             )
 
-        val constraints =
-            Constraints
-                .Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
         val createRemoteRankingRequest =
             OneTimeWorkRequestBuilder<CreateRemoteRankingWorker>()
                 .setInputData(data)
-                .setConstraints(constraints)
+                .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
+                .addTag("$UNIQUE_WORK_NAME_CREATE_REMOTE_RANKING${ranking.mobileId}")
                 .build()
+
         val workName =
-            "${UNIQUE_WORK_NAME_CREATE_REMOTE_RANK}_" +
-                    "NAME_${ranking.name}_LOCALID_${ranking.mobileId}"
+            "${UNIQUE_WORK_NAME_CREATE_REMOTE_RANKING}_" +
+                    "NAME:${ranking.name}_LOCALID:${ranking.mobileId}"
+
         workManager.enqueueUniqueWork(
             workName,
             ExistingWorkPolicy.REPLACE,
             createRemoteRankingRequest,
         )
+
         return workManager.getWorkInfoByIdFlow(createRemoteRankingRequest.id)
     }
 
-    fun scheduleSyncRanking(ranking: Ranking): Flow<WorkInfo> {
+    fun scheduleSyncRanking(ranking: Ranking): Flow<WorkInfo?> {
         val data =
             workDataOf(
                 WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
@@ -194,145 +205,216 @@ constructor(
                 WORK_DATA_IS_ADMIN to ranking.isAdmin,
             )
 
-        val constraints =
-            Constraints
-                .Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-
         val syncRequest =
             OneTimeWorkRequestBuilder<SyncRankingWorker>()
                 .setInputData(data)
-                .setConstraints(constraints)
+                .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
+                .addTag("$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}")
                 .build()
+
         val workName =
-            "${UNIQUE_WORK_NAME_SYNC_REMOTE_RANK}_" +
-                    "NAME_${ranking.name}_LOCALID_${ranking.localId}_REMOTEID_${ranking.remoteId}"
+            "${UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING}_" +
+                    "NAME:${ranking.name}_LOCALID:${ranking.localId}_REMOTEID:${ranking.remoteId}"
+
         workManager.enqueueUniqueWork(
             workName,
             ExistingWorkPolicy.REPLACE,
             syncRequest,
         )
+
         return workManager.getWorkInfoByIdFlow(syncRequest.id)
     }
 
+    /**
+     * Cria um Worker para criar um novo jogador na API.
+     * O Worker aguarda até que haja conexão com à internet para executar.
+     * Esta função somente é chamado quando o ranking já foi criado remotamente, ou seja, quando o
+     * remoteId do ranking existe e é diferente de 0, pois do contrário o jogador já será criado
+     * quando o CreateRemoteRankingWorker executar, visto que ele busca no Room o ranking a ser
+     * criado, junto com o jogador que seria criado aqui pois o jogador já foi criado localmente.
+     * Caso exista uma solicitação de sincronização pendente (o usuário pode estar sem conexão à
+     * internet, por exemplo), esta função cancela tal solicitação e cria uma nova para ser executada
+     * após a criação do jogador remotamente.
+     * @param playerId ID do jogador a ser criado.
+     * @param ranking Ranking em que o jogador será criado, para criar uma nova
+     * solicitação de sincronização, caso necessário.
+     * */
     fun scheduleRemotePlayerCreation(
         playerId: Long,
-        remoteRankingId: Long
-    ): Flow<WorkInfo> {
+        ranking: Ranking
+    ): Flow<WorkInfo?> {
         val data =
             workDataOf(
                 WORK_DATA_PLAYER_ID to playerId,
-                WORK_DATA_REMOTE_RANK_ID to remoteRankingId
+                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId
             )
-        val constraints =
-            Constraints
-                .Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-        val workName = "${UNIQUE_WORK_NAME_CREATE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
+
+        val createPlayerWorkerName =
+            "${UNIQUE_WORK_NAME_CREATE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
+
         val createRemotePlayerRequest =
             OneTimeWorkRequestBuilder<CreateRemotePlayerWorker>()
                 .setInputData(data)
-                .setConstraints(constraints)
+                .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
-        workManager.enqueueUniqueWork(
-            workName,
-            ExistingWorkPolicy.REPLACE,
-            createRemotePlayerRequest,
-        )
+
+        val syncWorkerTag = "$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}"
+
+        if (workManager.getWorkInfosByTag(syncWorkerTag).get().isNotEmpty()) {
+            workManager.cancelAllWorkByTag(syncWorkerTag)
+            val syncWorkerData = workDataOf(
+                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
+                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
+                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+            )
+            val syncRequest =
+                OneTimeWorkRequestBuilder<SyncRankingWorker>()
+                    .setInputData(syncWorkerData)
+                    .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
+                    .addTag(syncWorkerTag)
+                    .build()
+            workManager
+                .beginUniqueWork(
+                    createPlayerWorkerName,
+                    ExistingWorkPolicy.REPLACE,
+                    createRemotePlayerRequest,
+                )
+                .then(syncRequest)
+                .enqueue()
+        } else {
+            workManager.enqueueUniqueWork(
+                createPlayerWorkerName,
+                ExistingWorkPolicy.REPLACE,
+                createRemotePlayerRequest,
+            )
+        }
+
         return workManager.getWorkInfoByIdFlow(createRemotePlayerRequest.id)
     }
 
-    fun scheduleRemotePlayerDeletion(playerId: Long): Flow<WorkInfo> {
+    fun scheduleRemotePlayerDeletion(
+        playerId: Long,
+        ranking: Ranking
+    ): Flow<WorkInfo?> {
         val data = workDataOf(WORK_DATA_PLAYER_ID to playerId)
-        val constraints =
-            Constraints
-                .Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+
         val workName = "${UNIQUE_WORK_NAME_DELETE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
+
         val deleteRemotePlayerRequest =
             OneTimeWorkRequestBuilder<DeleteRemotePlayerWorker>()
                 .setInputData(data)
-                .setConstraints(constraints)
+                .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
-        workManager.enqueueUniqueWork(
-            workName,
-            ExistingWorkPolicy.REPLACE,
-            deleteRemotePlayerRequest,
-        )
+
+        val syncWorkerTag = "$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}"
+
+        if (workManager.getWorkInfosByTag(syncWorkerTag).get().isNotEmpty()) {
+
+            workManager.cancelAllWorkByTag(syncWorkerTag)
+
+            val syncWorkerData = workDataOf(
+                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
+                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
+                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+            )
+            val syncRequest =
+                OneTimeWorkRequestBuilder<SyncRankingWorker>()
+                    .setInputData(syncWorkerData)
+                    .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
+                    .addTag(syncWorkerTag)
+                    .build()
+            workManager
+                .beginUniqueWork(
+                    workName,
+                    ExistingWorkPolicy.REPLACE,
+                    deleteRemotePlayerRequest,
+                )
+                .then(syncRequest)
+                .enqueue()
+        } else {
+            workManager.enqueueUniqueWork(
+                workName,
+                ExistingWorkPolicy.REPLACE,
+                deleteRemotePlayerRequest,
+            )
+        }
         return workManager.getWorkInfoByIdFlow(deleteRemotePlayerRequest.id)
     }
 
-    fun scheduleRemoteRankDeletion(rankId: Long): Flow<WorkInfo> {
+    fun scheduleRemoteRankDeletion(rankId: Long): Flow<WorkInfo?> {
         val data = workDataOf(WORK_DATA_REMOTE_RANK_ID to rankId)
-        val constraints =
-            Constraints
-                .Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-        val workName = "${UNIQUE_WORK_NAME_DELETE_REMOTE_RANK}_" + "RANK_ID_$rankId"
+
+        val workName = "${UNIQUE_WORK_NAME_DELETE_REMOTE_RANKING}_" + "RANK_ID_$rankId"
+
         val deleteRemoteRankRequest =
             OneTimeWorkRequestBuilder<DeleteRemoteRankWorker>()
                 .setInputData(data)
-                .setConstraints(constraints)
+                .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
+
+
         workManager.enqueueUniqueWork(
             workName,
             ExistingWorkPolicy.REPLACE,
             deleteRemoteRankRequest,
         )
+
         return workManager.getWorkInfoByIdFlow(deleteRemoteRankRequest.id)
     }
 
-    fun scheduleRemotePlayerUpdate(player: UpdatePlayerDTO): Flow<WorkInfo> {
+    fun scheduleRemotePlayerUpdate(
+        player: UpdatePlayerDTO,
+        ranking: Ranking
+    ): Flow<WorkInfo?> {
         val data = workDataOf(
             WORK_DATA_PLAYER_NAME to player.name,
             WORK_DATA_PLAYER_SCORE to player.score,
             WORK_DATA_PLAYER_ID to player.id
         )
-        val constraints =
-            Constraints
-                .Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
+
         val workName =
             "${UNIQUE_WORK_NAME_UPDATE_REMOTE_PLAYER}_" +
                     "PLAYER_ID:${player.id}_" +
                     "PLAYER_NAME:${player.name}_" +
                     "PLAYER_SCORE:${player.score}"
+
         val updateRemotePlayerRequest =
             OneTimeWorkRequestBuilder<UpdateRemotePlayerWorker>()
                 .setInputData(data)
-                .setConstraints(constraints)
+                .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
-        workManager.enqueueUniqueWork(
-            workName,
-            ExistingWorkPolicy.REPLACE,
-            updateRemotePlayerRequest,
-        )
+
+        val syncWorkerTag = "$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}"
+
+        if (workManager.getWorkInfosByTag(syncWorkerTag).get().isNotEmpty()) {
+            workManager.cancelAllWorkByTag(syncWorkerTag)
+
+            val syncWorkerData = workDataOf(
+                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
+                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
+                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+            )
+            val syncRequest =
+                OneTimeWorkRequestBuilder<SyncRankingWorker>()
+                    .setInputData(syncWorkerData)
+                    .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
+                    .addTag(syncWorkerTag)
+                    .build()
+            workManager
+                .beginUniqueWork(
+                    workName,
+                    ExistingWorkPolicy.REPLACE,
+                    updateRemotePlayerRequest,
+                )
+                .then(syncRequest)
+                .enqueue()
+        } else {
+            workManager.enqueueUniqueWork(
+                workName,
+                ExistingWorkPolicy.REPLACE,
+                updateRemotePlayerRequest,
+            )
+        }
         return workManager.getWorkInfoByIdFlow(updateRemotePlayerRequest.id)
-    }
-
-    fun cancelRemoteRankingCreation(
-        name: String,
-        localId: Long,
-    ) {
-        val workName =
-            "${UNIQUE_WORK_NAME_CREATE_REMOTE_RANK}_" +
-                    "NAME_${name}_LOCALID_$localId"
-        workManager.cancelUniqueWork(workName)
-    }
-
-    fun cancelSyncRanking(
-        name: String,
-        localId: Long,
-        remoteId: Long,
-    ) {
-        val workName =
-            "${UNIQUE_WORK_NAME_SYNC_REMOTE_RANK}_" +
-                    "NAME_${name}_LOCALID_${localId}_REMOTEID_$remoteId"
-        workManager.cancelUniqueWork(workName)
     }
 }

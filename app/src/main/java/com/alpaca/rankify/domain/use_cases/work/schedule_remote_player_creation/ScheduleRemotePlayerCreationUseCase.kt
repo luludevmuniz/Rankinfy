@@ -2,6 +2,7 @@ package com.alpaca.rankify.domain.use_cases.work.schedule_remote_player_creation
 
 import androidx.work.WorkInfo
 import com.alpaca.rankify.data.repository.Repository
+import com.alpaca.rankify.domain.model.Ranking
 import kotlinx.coroutines.flow.Flow
 
 class ScheduleRemotePlayerCreationUseCase(
@@ -9,10 +10,10 @@ class ScheduleRemotePlayerCreationUseCase(
 ) {
     operator fun invoke(
         playerId: Long,
-        remoteRankingId: Long
-    ): Flow<WorkInfo> =
+        ranking: Ranking
+    ): Flow<WorkInfo?> =
         repository.scheduleRemotePlayerCreation(
             playerId = playerId,
-            remoteRankingId = remoteRankingId
+            ranking = ranking
         )
 }

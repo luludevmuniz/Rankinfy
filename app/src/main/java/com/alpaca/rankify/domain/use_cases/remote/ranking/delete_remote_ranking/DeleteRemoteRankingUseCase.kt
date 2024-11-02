@@ -1,8 +1,8 @@
-package com.alpaca.rankify.domain.use_cases.remote.rank.delete_remote_rank
+package com.alpaca.rankify.domain.use_cases.remote.ranking.delete_remote_ranking
 
 import com.alpaca.rankify.data.repository.Repository
 
-class DeleteRemoteRankUseCase(
+class DeleteRemoteRankingUseCase(
     private val repository: Repository
 ) {
     suspend operator fun invoke(id: Long) =

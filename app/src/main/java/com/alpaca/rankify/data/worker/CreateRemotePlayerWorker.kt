@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.mappers.asDto
 import com.alpaca.rankify.domain.use_cases.UseCases
 import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_ID

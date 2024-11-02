@@ -19,11 +19,8 @@ import com.alpaca.rankify.ui.theme.RankifyTheme
 @Composable
 fun SearchRankingContent(
     modifier: Modifier = Modifier,
-    rankingName: String,
-    rankingNameError: Boolean,
     rankingIdError: Boolean,
     rankingId: String,
-    onRankingNameChange: (String) -> Unit,
     onRankingIdChange: (String) -> Unit,
     onSearchRankingClick: () -> Unit
 ) {
@@ -34,15 +31,6 @@ fun SearchRankingContent(
             Alignment.CenterVertically
         )
     ) {
-        OutlinedTextField(
-            value = rankingName,
-            onValueChange = onRankingNameChange,
-            label = {
-                Text(stringResource(R.string.nome_do_ranking))
-            },
-            singleLine = true,
-            isError = rankingNameError
-        )
         OutlinedTextField(
             value = rankingId,
             onValueChange = onRankingIdChange,
@@ -73,11 +61,8 @@ fun SearchRankingContent(
 private fun SearchRankingContentPrev() {
     RankifyTheme {
         SearchRankingContent(
-            rankingName = "Preview",
-            rankingNameError = false,
             rankingIdError = false,
             rankingId = "123",
-            onRankingNameChange = { },
             onRankingIdChange = { },
             onSearchRankingClick = { }
         )

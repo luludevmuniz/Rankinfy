@@ -1,13 +1,14 @@
 package com.alpaca.rankify.data.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.Constants.WORK_DATA_ADMIN_PASSWORD
+import com.alpaca.rankify.util.Constants.WORK_DATA_IS_ADMIN
 import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
 import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
 import dagger.assisted.Assisted
@@ -24,11 +25,11 @@ class SyncRankingWorker
         override suspend fun doWork(): Result {
             val remoteId = inputData.getLong(WORK_DATA_REMOTE_RANK_ID, -1)
             val localId = inputData.getLong(WORK_DATA_LOCAL_RANKING_ID, -1)
-            val isAdmin = inputData.getBoolean(WORK_DATA_ADMIN_PASSWORD, false)
+            val isAdmin = inputData.getBoolean(WORK_DATA_IS_ADMIN, false)
 
             return try {
                 val remoteRanking =
-                    useCases.getRemoteRank(
+                    useCases.getRemoteRanking(
                         id = remoteId,
                         password = null,
                     )
@@ -41,6 +42,7 @@ class SyncRankingWorker
                                 isAdmin = isAdmin,
                             ),
                 )
+                Log.d("SYNC WORK", "SUCCESS")
                 Result.success(
                     workDataOf(
                         "teste" to 0,

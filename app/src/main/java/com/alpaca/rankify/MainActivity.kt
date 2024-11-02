@@ -8,6 +8,8 @@ import androidx.navigation.compose.rememberNavController
 import com.alpaca.rankify.navigation.SetupNavGraph
 import com.alpaca.rankify.ui.theme.RankifyTheme
 import dagger.hilt.android.AndroidEntryPoint
+import android.content.Intent
+import android.net.Uri
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

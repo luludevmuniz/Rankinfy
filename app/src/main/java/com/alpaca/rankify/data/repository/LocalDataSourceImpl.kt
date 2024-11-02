@@ -12,7 +12,8 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
     private val rankingDao = database.rankingDao()
     private val playerDao = database.playerDao()
 
-    override fun getRanking(id: Long): Flow<RankingWithPlayers?> = rankingDao.getRankingWithPlayers(id = id)
+    override fun getRanking(id: Long): Flow<RankingWithPlayers?> =
+        rankingDao.getRankingWithPlayers(id = id)
 
     override fun getAllRankings(): Flow<List<RankingEntity>> = rankingDao.getAllRankings()
 
@@ -24,11 +25,18 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
 
     override suspend fun updateRankingWithPlayers(rankingWithPlayers: RankingWithPlayers) {
         updateRanking(ranking = rankingWithPlayers.ranking)
-        updatePlayers(players = rankingWithPlayers.players)
+        insertPlayers(players = rankingWithPlayers.players)
         deletePlayersNotInRanking(
             rankingId = rankingWithPlayers.ranking.localId,
-            playerIds = rankingWithPlayers.players.map { it.localId }
+            playerIds = rankingWithPlayers.players.map { it.remoteId ?: -1 }
         )
+    }
+
+    override suspend fun saveRankingWithPlayers(rankingWithPlayers: RankingWithPlayers): Long {
+        val rankingId = saveRanking(ranking = rankingWithPlayers.ranking)
+        val players = rankingWithPlayers.players.map { it.copy(rankingId = rankingId) }
+        playerDao.insertPlayers(players = players)
+        return rankingId
     }
 
     override suspend fun updateRanking(ranking: RankingEntity) =
@@ -42,11 +50,17 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
     override suspend fun insertPlayer(player: PlayerEntity): Long =
         playerDao.insertPlayer(player = player)
 
+    override suspend fun insertPlayers(players: List<PlayerEntity>) =
+        playerDao.insertPlayers(players = players)
+
     override suspend fun updatePlayer(player: PlayerEntity) =
         playerDao.updatePlayer(player = player)
 
     override suspend fun deletePlayer(player: PlayerEntity) =
         playerDao.deletePlayer(player = player)
+
+    override suspend fun deleteAllPlayers(rankingId: Long) =
+        playerDao.deleteAllPlayers(rankingId = rankingId)
 
     override suspend fun deletePlayersNotInRanking(rankingId: Long, playerIds: List<Long>) =
         playerDao.deletePlayersNotInRanking(rankingId = rankingId, playerIds = playerIds)

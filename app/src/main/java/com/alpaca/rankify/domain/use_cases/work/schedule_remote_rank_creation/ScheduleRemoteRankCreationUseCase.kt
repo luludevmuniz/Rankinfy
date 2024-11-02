@@ -8,6 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class ScheduleRemoteRankCreationUseCase(
     private val repository: Repository
 ) {
-    operator fun invoke(ranking: CreateRankingDTO): Flow<WorkInfo> =
+    operator fun invoke(ranking: CreateRankingDTO): Flow<WorkInfo?> =
         repository.scheduleRemoteRankingCreation(ranking = ranking)
 }
