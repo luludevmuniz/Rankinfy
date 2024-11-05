@@ -18,6 +18,7 @@ import com.alpaca.rankify.domain.use_cases.remote.ranking.get_remote_ranking.Get
 import com.alpaca.rankify.domain.use_cases.work.schedule_sync_rank.ScheduleSyncRankingUseCase
 import com.alpaca.rankify.domain.use_cases.remote.ranking.search_ranking.SearchRankingUseCase
 import com.alpaca.rankify.domain.use_cases.local.player.update_player.UpdatePlayerUseCase
+import com.alpaca.rankify.domain.use_cases.local.rank.get_ranking_with_remote_id.GetRankingWithRemoteIdUseCase
 import com.alpaca.rankify.domain.use_cases.local.rank.update_ranking.UpdateRankingUseCase
 import com.alpaca.rankify.domain.use_cases.local.rank.update_ranking_with_players.UpdateRankingWithPlayersUseCase
 import com.alpaca.rankify.domain.use_cases.remote.player.create_remote_player.CreateRemotePlayerUseCase
@@ -54,6 +55,7 @@ object RepositoryModule {
             updateRankWithPlayers = UpdateRankingWithPlayersUseCase(repository = repository),
             deleteRanking = DeleteRankingUseCase(repository = repository),
             getRanking = GetRankingUseCase(repository = repository),
+            getRankingWithRemoteId = GetRankingWithRemoteIdUseCase(repository = repository),
             getRemoteRanking = GetRemoteRanking(repository = repository),
             getAllRankings = GetAllRankingsUseCase(repository = repository),
             getPlayer = GetPlayerUseCase(repository = repository),

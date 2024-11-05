@@ -6,14 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,8 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import com.alpaca.rankify.R
 import com.alpaca.rankify.presentation.common.PasswordOutlinedTextField
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
@@ -110,28 +102,7 @@ private fun CreateRankingButton(
         if (isLoading()) {
             CircularProgressIndicator()
         } else {
-            Text(text = "Criar ranking")
+            Text(text = stringResource(R.string.criar_ranking))
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//private fun CreateRankingContentPrev() {
-//    RankifyTheme {
-//        CreateRankingContent(
-//            modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
-//            onCreateClick = { },
-//            rankingName = "",
-//            rankingPassword = "",
-//            rankingNameError = false,
-//            rankingPasswordError = false,
-//            passwordVisible = false,
-//            onRankingNameChange = {},
-//            onRankingPasswordChange = {},
-//            onTogglePasswordVisibility = {},
-//            isLoading = false
-//        )
-//    }
-//}

@@ -35,9 +35,10 @@ class SearchRankingViewModel @Inject constructor(private val useCases: UseCases)
     val rankingAdminPasswordUiState = _rankingAdminPasswordUiState.asStateFlow()
     private val _navigationEvent = Channel<RankingSearched>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
-    val coroutineExceptionHandler = CoroutineExceptionHandler{_, throwable ->
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
+
     fun onEvent(event: SearchRankingEvent) {
         when (event) {
             HideLoading -> hideLoading()
@@ -66,22 +67,14 @@ class SearchRankingViewModel @Inject constructor(private val useCases: UseCases)
             return
         }
         viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            try {
-                val searchedRankingId = async {
-                    useCases.searchRanking(
-                        id = id.toLongOrNull() ?: 0L,
-                        adminPassword = password
-                    )
-                }
-                val alreadyExistingRanking = useCases.getRankingWithRemoteId(searchedRankingId)
-                if (useCases.getRankingWithRemoteId(searchedRankingId) != null) {
-
-                }
-                _navigationEvent.send(RankingSearched(id = searchedRankingId.await()))
-                resetUiState()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val searchedRankingId = async {
+                useCases.searchRanking(
+                    id = id.toLongOrNull() ?: 0L,
+                    adminPassword = password
+                )
+            }.await()
+            _navigationEvent.send(RankingSearched(id = searchedRankingId))
+            resetUiState()
         }
     }
 

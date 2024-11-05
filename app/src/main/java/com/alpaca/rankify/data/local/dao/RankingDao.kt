@@ -20,6 +20,9 @@ interface RankingDao {
     @Query("SELECT * FROM $RANKING_TABLE WHERE local_id = :id")
     fun getRanking(id: Long): Flow<RankingEntity>
 
+    @Query("SELECT * FROM $RANKING_TABLE WHERE remote_id = :id")
+    fun getRankingWithRemoteId(id: Long): Flow<RankingEntity?>
+
     @Query("SELECT * FROM $RANKING_TABLE")
     fun getAllRankings(): Flow<List<RankingEntity>>
 

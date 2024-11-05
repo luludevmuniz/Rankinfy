@@ -39,6 +39,7 @@ import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_SCORE
 import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
 import com.alpaca.rankify.util.Constants.WORK_MANAGER_DEFAULT_CONSTRAINTS
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -84,6 +85,11 @@ constructor(
 
     fun getRanking(id: Long): Flow<Ranking?> =
         local.getRanking(id = id).map {
+            it?.asExternalModel()
+        }
+
+    fun getRankingWithRemoteId(id: Long): Flow<Ranking?> =
+        local.getRankingWithRemoteId(id = id).map {
             it?.asExternalModel()
         }
 
@@ -152,7 +158,12 @@ constructor(
             id = id,
             password = adminPassword
         )
-        return saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
+        val alreadyExistingRanking = getRankingWithRemoteId(ranking.apiId).firstOrNull()
+        if (alreadyExistingRanking == null) {
+            return saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
+        } else {
+            return alreadyExistingRanking.localId
+        }
     }
 
     private suspend fun updatePlayersPositionInRanking(rankingId: Long) {

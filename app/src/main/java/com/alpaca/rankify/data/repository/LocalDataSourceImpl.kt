@@ -15,6 +15,9 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
     override fun getRanking(id: Long): Flow<RankingWithPlayers?> =
         rankingDao.getRankingWithPlayers(id = id)
 
+    override fun getRankingWithRemoteId(id: Long): Flow<RankingEntity?> =
+        rankingDao.getRankingWithRemoteId(id = id)
+
     override fun getAllRankings(): Flow<List<RankingEntity>> = rankingDao.getAllRankings()
 
     override suspend fun saveRanking(ranking: RankingEntity) =

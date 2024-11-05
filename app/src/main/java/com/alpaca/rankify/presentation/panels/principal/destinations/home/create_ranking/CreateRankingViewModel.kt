@@ -14,13 +14,12 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.TogglePasswordVisibility
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingName
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingPassword
+import com.alpaca.rankify.util.Constants.MIN_RANKING_PASSWORD_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -92,7 +91,7 @@ class CreateRankingViewModel @Inject constructor(
     }
 
     private fun validateRankingPassword(password: String) {
-        if (password.length < 6) {
+        if (password.length < MIN_RANKING_PASSWORD_SIZE) {
             showRankingPasswordError()
         } else {
             hideRankingPasswordError()

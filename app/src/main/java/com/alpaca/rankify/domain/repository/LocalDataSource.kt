@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
     fun getRanking(id: Long): Flow<RankingWithPlayers?>
+    fun getRankingWithRemoteId(id: Long): Flow<RankingEntity?>
     fun getAllRankings(): Flow<List<RankingEntity>>
     suspend fun saveRanking(ranking: RankingEntity): Long
     suspend fun deleteRanking(id: Long): Int

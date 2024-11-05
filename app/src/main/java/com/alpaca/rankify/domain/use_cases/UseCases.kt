@@ -14,6 +14,7 @@ import com.alpaca.rankify.domain.use_cases.work.schedule_remote_rank_creation.Sc
 import com.alpaca.rankify.domain.use_cases.work.schedule_sync_rank.ScheduleSyncRankingUseCase
 import com.alpaca.rankify.domain.use_cases.remote.ranking.search_ranking.SearchRankingUseCase
 import com.alpaca.rankify.domain.use_cases.local.player.update_player.UpdatePlayerUseCase
+import com.alpaca.rankify.domain.use_cases.local.rank.get_ranking_with_remote_id.GetRankingWithRemoteIdUseCase
 import com.alpaca.rankify.domain.use_cases.local.rank.update_ranking.UpdateRankingUseCase
 import com.alpaca.rankify.domain.use_cases.local.rank.update_ranking_with_players.UpdateRankingWithPlayersUseCase
 import com.alpaca.rankify.domain.use_cases.remote.player.create_remote_player.CreateRemotePlayerUseCase
@@ -31,6 +32,7 @@ data class UseCases(
     val updateRanking: UpdateRankingUseCase,
     val updateRankWithPlayers: UpdateRankingWithPlayersUseCase,
     val getRanking: GetRankingUseCase,
+    val getRankingWithRemoteId: GetRankingWithRemoteIdUseCase,
     val getRemoteRanking: GetRemoteRanking,
     val getAllRankings: GetAllRankingsUseCase,
     val deleteRanking: DeleteRankingUseCase,
