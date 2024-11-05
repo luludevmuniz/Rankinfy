@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -17,12 +16,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.alpaca.rankify.R
 import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.CreatePlayer
@@ -47,19 +51,33 @@ import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEven
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.UpdatePlayer
 import com.alpaca.rankify.presentation.panels.ranking_details.component.DeleteDialog
 import com.alpaca.rankify.presentation.panels.ranking_details.component.PlayerDialog
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
+@NonRestartableComposable
 @Composable
-fun RankingScreen(
+fun RankingDetailsScreen(
     rankingDetailsViewModel: RankingDetailsViewModel = hiltViewModel(),
+    rankingId: Long? = null,
     onBackClick: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        rankingId?.let { id ->
+            rankingDetailsViewModel.setLocalRankingId(id)
+        }
+    }
     val ranking by rankingDetailsViewModel.ranking.collectAsStateWithLifecycle()
     val uiState by rankingDetailsViewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = rememberUpdatedState(newValue = LocalLifecycleOwner.current)
 
-    LaunchedEffect(ranking) {
-        if (ranking == null) {
-            onBackClick()
+    LaunchedEffect(lifecycleOwner.value.lifecycle) {
+        lifecycleOwner.value.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            launch {
+                rankingDetailsViewModel.navigationEvent.collect {
+                    onBackClick()
+                }
+            }
         }
     }
 
@@ -79,8 +97,10 @@ fun RankingScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = {
-                            rankingDetailsViewModel.onEvent(ShowDeleteRankingDialog)
+                        onClick = remember {
+                            {
+                                rankingDetailsViewModel.onEvent(ShowDeleteRankingDialog)
+                            }
                         }
                     ) {
                         Icon(
@@ -88,25 +108,27 @@ fun RankingScreen(
                             contentDescription = stringResource(R.string.deletar_raking)
                         )
                     }
-                    IconButton(
-                        onClick = {
-
-                        },
-                        enabled = ranking?.remoteId != null
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Share,
-                            contentDescription = stringResource(R.string.compartilhar)
-                        )
-                    }
+//                    IconButton(
+//                        onClick = {
+//
+//                        },
+//                        enabled = ranking?.remoteId != null
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Filled.Share,
+//                            contentDescription = stringResource(R.string.compartilhar)
+//                        )
+//                    }
                 }
             )
         },
         floatingActionButton = {
             if (ranking?.isAdmin == true) {
                 FloatingActionButton(
-                    onClick = {
-                        rankingDetailsViewModel.onEvent(ShowCreatePlayerDialog)
+                    onClick = remember {
+                        {
+                            rankingDetailsViewModel.onEvent(ShowCreatePlayerDialog)
+                        }
                     }
                 ) {
                     Icon(
@@ -118,10 +140,12 @@ fun RankingScreen(
         }
     ) { paddingValues ->
         ranking?.let {
-            RankingContent(
+            RankingDetailsContent(
                 modifier = Modifier.padding(paddingValues),
-                uiState = { uiState },
-                ranking = it,
+                isSyncing = { uiState.isSyncing },
+                isAdmin = { ranking?.isAdmin ?: false },
+                lastUpdate = { ranking?.formattedLastUpdated.orEmpty() },
+                players = { ranking?.sortedPlayers ?: persistentListOf() },
                 onDeletePlayer = remember {
                     { player: Player ->
                         rankingDetailsViewModel.onEvent(
@@ -147,18 +171,22 @@ fun RankingScreen(
             DeleteDialog(
                 title = "Deseja mesmo excluir o ranking?",
                 text = "Essa ação não pode ser desfeita.",
-                onDismissRequest = {
-                    rankingDetailsViewModel.onEvent(HideDeleteRankingDialog)
+                onDismissRequest = remember {
+                    {
+                        rankingDetailsViewModel.onEvent(HideDeleteRankingDialog)
+                    }
                 },
-                onConfirmClick = {
-                    ranking?.let {
-                        rankingDetailsViewModel.onEvent(
-                            DeleteRanking(
-                                name = it.name,
-                                localId = it.localId,
-                                remoteId = it.remoteId
+                onConfirmClick = remember {
+                    {
+                        ranking?.let {
+                            rankingDetailsViewModel.onEvent(
+                                DeleteRanking(
+                                    name = it.name,
+                                    localId = it.localId,
+                                    remoteId = it.remoteId
+                                )
                             )
-                        )
+                        }
                     }
                 }
             )
@@ -168,13 +196,17 @@ fun RankingScreen(
             DeleteDialog(
                 title = "Deseja mesmo excluir o jogador?",
                 text = "Essa ação não pode ser desfeita.",
-                onDismissRequest = {
-                    rankingDetailsViewModel.onEvent(HideDeletePlayerDialog)
-                },
-                onConfirmClick = {
-                    uiState.selectedPlayer.let {
-                        rankingDetailsViewModel.onEvent(DeletePlayer(it))
+                onDismissRequest = remember {
+                    {
                         rankingDetailsViewModel.onEvent(HideDeletePlayerDialog)
+                    }
+                },
+                onConfirmClick = remember {
+                    {
+                        uiState.selectedPlayer.let {
+                            rankingDetailsViewModel.onEvent(DeletePlayer(it))
+                            rankingDetailsViewModel.onEvent(HideDeletePlayerDialog)
+                        }
                     }
                 }
             )
@@ -237,7 +269,7 @@ fun RankingScreen(
                 playerName = { uiState.newPlayer.name },
                 playerScore = { uiState.newPlayer.score },
                 isNameWithError = { uiState.isPlayerDialogNameFieldWithError },
-                isScoreWithError = { uiState.isPlayerDialogScoreFieldWithError } ,
+                isScoreWithError = { uiState.isPlayerDialogScoreFieldWithError },
                 title = "Adicionar jogador",
                 icon = Icons.Default.AddCircle,
                 onPlayerNameChange = remember {

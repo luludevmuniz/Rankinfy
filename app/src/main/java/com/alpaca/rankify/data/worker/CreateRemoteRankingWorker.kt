@@ -28,7 +28,7 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
 
         return try {
             withContext(Dispatchers.IO) {
-                val localRanking = useCases.getRank(id = localRankingId).firstOrNull() ?: return@withContext Result.failure()
+                val localRanking = useCases.getRanking(id = localRankingId).firstOrNull() ?: return@withContext Result.failure()
                 if (localRanking.adminPassword == null) return@withContext Result.failure()
                 val remoteRanking = useCases.createRemoteRank(
                     ranking =

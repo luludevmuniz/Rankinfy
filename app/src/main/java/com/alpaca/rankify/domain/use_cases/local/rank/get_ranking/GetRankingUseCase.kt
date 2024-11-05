@@ -4,7 +4,7 @@ import com.alpaca.rankify.data.repository.Repository
 import com.alpaca.rankify.domain.model.Ranking
 import kotlinx.coroutines.flow.Flow
 
-class GetRankUseCase(
+class GetRankingUseCase(
     private val repository: Repository
 ) {
     operator fun invoke(id: Long): Flow<Ranking?> = repository.getRanking(id = id)

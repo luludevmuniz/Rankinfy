@@ -5,5 +5,11 @@ import com.alpaca.rankify.data.repository.Repository
 class SearchRankingUseCase(
     private val repository: Repository,
 ) {
-    suspend operator fun invoke(id: Long): Long = repository.searchRanking(id = id)
+    suspend operator fun invoke(
+        id: Long,
+        adminPassword: String?
+    ): Long = repository.searchRanking(
+        id = id,
+        adminPassword = adminPassword
+    )
 }

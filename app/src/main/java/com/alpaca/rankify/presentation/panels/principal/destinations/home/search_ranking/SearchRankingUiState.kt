@@ -2,6 +2,5 @@ package com.alpaca.rankify.presentation.panels.principal.destinations.home.searc
 
 data class SearchRankingUiState(
     val isLoading: Boolean = false,
-    val rankingId: String = "",
-    val rankingIdError: Boolean = false
+    val isAdministrator: Boolean = false,
 )

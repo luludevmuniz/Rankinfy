@@ -21,7 +21,10 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingName
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingPassword
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingViewModel
+import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.ChangeIsAdministrator
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.SearchRanking
+import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.ToggleAdminPasswordVisibility
+import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateRankingAdminPassword
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedId
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingViewModel
 import kotlinx.coroutines.launch
@@ -38,6 +41,8 @@ fun HomeScreen(
     val rankingNameUiState by createRankingViewModel.rankingNameUiState.collectAsStateWithLifecycle()
     val rankingPasswordUiState by createRankingViewModel.rankingPasswordUiState.collectAsStateWithLifecycle()
     val searchRankingUiState by searchRankingViewModel.uiState.collectAsStateWithLifecycle()
+    val rankingIdUiState by searchRankingViewModel.rankingIdUiState.collectAsStateWithLifecycle()
+    val rankingAdminPasswordUiState by searchRankingViewModel.rankingAdminPasswordUiState.collectAsStateWithLifecycle()
     val lifecycleOwner = rememberUpdatedState(newValue = LocalLifecycleOwner.current)
     LaunchedEffect(lifecycleOwner.value.lifecycle) {
         lifecycleOwner.value.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -81,24 +86,57 @@ fun HomeScreen(
             nameState = { rankingNameUiState },
             passwordState = { rankingPasswordUiState },
             searchRankingUiState = { searchRankingUiState },
-            onUpdateRankingName = { name ->
-                createRankingViewModel.onEvent(UpdateRankingName(name = name))
+            onUpdateRankingName = remember {
+                { name ->
+                    createRankingViewModel.onEvent(UpdateRankingName(name = name))
+                }
             },
-            onUpdateRankingPassword = { password ->
-                createRankingViewModel.onEvent(UpdateRankingPassword(password = password))
+            onUpdateRankingPassword = remember {
+                { password ->
+                    createRankingViewModel.onEvent(UpdateRankingPassword(password = password))
+                }
             },
-            onTogglePasswordVisibility = {
-                createRankingViewModel.onEvent(TogglePasswordVisibility)
+            onTogglePasswordVisibility = remember {
+                {
+                    createRankingViewModel.onEvent(TogglePasswordVisibility)
+                }
             },
-            onCreateRanking = {
-                createRankingViewModel.onEvent(CreateRanking(name = rankingNameUiState.value))
+            onCreateRanking = remember {
+                {
+                    createRankingViewModel.onEvent(CreateRanking(name = rankingNameUiState.value))
+                }
             },
-            onUpdateSearchedId = { id ->
-                searchRankingViewModel.onEvent(UpdateSearchedId(id = id))
+            onUpdateSearchedId = remember {
+                { id ->
+                    searchRankingViewModel.onEvent(UpdateSearchedId(id = id))
+                }
             },
-            onSearchRankingClick = {
-                searchRankingViewModel.onEvent(SearchRanking)
-            }
+            onSearchRankingClick = remember {
+                {
+                    searchRankingViewModel.onEvent(SearchRanking)
+                }
+            },
+            onIsAdministratorChange = remember {
+                {
+                    searchRankingViewModel.onEvent(ChangeIsAdministrator)
+                }
+            },
+            rankingIdState = { rankingIdUiState },
+            rankingAdminPasswordState = { rankingAdminPasswordUiState },
+            onToggleAdminPasswordVisibility = remember {
+                {
+                    searchRankingViewModel.onEvent(ToggleAdminPasswordVisibility)
+                }
+            },
+            onUpdateRankingAdminPassword = remember {
+                { password ->
+                    searchRankingViewModel.onEvent(
+                        UpdateRankingAdminPassword(
+                            password
+                        )
+                    )
+                }
+            },
         )
     }
 }

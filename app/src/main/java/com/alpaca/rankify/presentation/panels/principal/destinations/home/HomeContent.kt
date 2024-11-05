@@ -27,14 +27,19 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
  fun HomeContent(
     modifier: Modifier = Modifier,
     nameState: () -> RankingNameUiState,
+    rankingIdState: () -> RankingNameUiState,
+    rankingAdminPasswordState: () -> RankingPasswordUiState,
     passwordState: () -> RankingPasswordUiState,
     searchRankingUiState: () -> SearchRankingUiState,
     onUpdateRankingName: (String) -> Unit,
     onUpdateRankingPassword: (String) -> Unit,
+    onUpdateRankingAdminPassword: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
+    onToggleAdminPasswordVisibility: () -> Unit,
     onCreateRanking: () -> Unit,
     onUpdateSearchedId: (String) -> Unit,
-    onSearchRankingClick: () -> Unit
+    onSearchRankingClick: () -> Unit,
+    onIsAdministratorChange: () -> Unit
 ) {
     val tabs = listOf(TabsDestinations.CREATE_RANKING, TabsDestinations.SEARCH_RANKING)
     val tabIndex = remember { mutableIntStateOf(0) }
@@ -72,7 +77,12 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
                 TabsDestinations.SEARCH_RANKING -> SearchRankingContent(
                     searchRankingUiState = searchRankingUiState,
                     onRankingIdChange = onUpdateSearchedId,
-                    onSearchRankingClick = onSearchRankingClick
+                    onSearchRankingClick = onSearchRankingClick,
+                    idUiState = rankingIdState,
+                    passwordState = rankingAdminPasswordState,
+                    onRankingPasswordChange = onUpdateRankingAdminPassword,
+                    onTogglePasswordVisibility = onToggleAdminPasswordVisibility,
+                    onIsAdministratorChange = onIsAdministratorChange
                 )
             }
         }

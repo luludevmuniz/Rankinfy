@@ -34,8 +34,11 @@ class LocalDataSourceImpl @Inject constructor(database: Database) : LocalDataSou
 
     override suspend fun saveRankingWithPlayers(rankingWithPlayers: RankingWithPlayers): Long {
         val rankingId = saveRanking(ranking = rankingWithPlayers.ranking)
-        val players = rankingWithPlayers.players.map { it.copy(rankingId = rankingId) }
-        playerDao.insertPlayers(players = players)
+        if (rankingWithPlayers.players.isNotEmpty()) {
+            val players = rankingWithPlayers.players.map { it.copy(rankingId = rankingId) }
+            playerDao.insertPlayers(players = players)
+
+        }
         return rankingId
     }
 

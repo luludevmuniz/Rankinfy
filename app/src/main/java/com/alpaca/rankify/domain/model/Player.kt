@@ -1,7 +1,9 @@
 package com.alpaca.rankify.domain.model
 
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 
+@Stable
 @Serializable
 data class Player(
     val id: Long = 0,

@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.alpaca.rankify.R
+import com.alpaca.rankify.presentation.common.PasswordOutlinedTextField
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
 
 @Composable
@@ -91,45 +92,6 @@ private fun RankingNameOutlinedTextField(
         singleLine = true,
         isError = nameState().error,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-    )
-}
-
-@Composable
-private fun PasswordOutlinedTextField(
-    passwordState: () -> RankingPasswordUiState,
-    onPasswordChange: (String) -> Unit,
-    onTogglePasswordVisibility: () -> Unit,
-) {
-    OutlinedTextField(
-        value = passwordState().value,
-        onValueChange = onPasswordChange,
-        label = {
-            Text(text = stringResource(R.string.senha_do_administrador))
-        },
-        singleLine = true,
-        visualTransformation = if (passwordState().isVisible) VisualTransformation.None
-        else PasswordVisualTransformation(),
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = null
-            )
-        },
-        trailingIcon = {
-            IconButton(
-                onClick = onTogglePasswordVisibility
-            ) {
-                Icon(
-                    imageVector = if (passwordState().isVisible) Icons.Default.Visibility
-                    else Icons.Default.VisibilityOff,
-                    contentDescription = stringResource(R.string.change_password_visibility)
-                )
-            }
-        },
-        supportingText = {
-            Text(text = stringResource(R.string.a_senha_deve_conter_no_minimo_6_digitos))
-        },
-        isError = passwordState().error
     )
 }
 

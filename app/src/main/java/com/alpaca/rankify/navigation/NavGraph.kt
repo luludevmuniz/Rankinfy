@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import com.alpaca.rankify.navigation.Panel.Principal
 import com.alpaca.rankify.navigation.Panel.RankingDetails
 import com.alpaca.rankify.presentation.panels.principal.PrincipalScreen
-import com.alpaca.rankify.presentation.panels.ranking_details.RankingScreen
+import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsScreen
 
 @Composable
 fun SetupNavGraph(
@@ -30,7 +30,7 @@ fun SetupNavGraph(
             )
         }
         composable<RankingDetails> {
-            RankingScreen(
+            RankingDetailsScreen(
                 onBackClick = {
                     navController.popBackStack()
                 }

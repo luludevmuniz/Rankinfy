@@ -10,4 +10,3 @@ data class RankingPasswordUiState(
     val error: Boolean = false,
     val isVisible: Boolean = false
 )
-

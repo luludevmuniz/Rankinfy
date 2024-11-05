@@ -10,7 +10,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 @HiltWorker
-class DeleteRemoteRankWorker @AssistedInject
+class DeleteRemoteRankingWorker @AssistedInject
 constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
@@ -19,7 +19,7 @@ constructor(
     override suspend fun doWork(): Result {
         val rankId = inputData.getLong(WORK_DATA_REMOTE_RANK_ID, -1)
         return try {
-            useCases.deleteRemoteRank(id = rankId)
+            useCases.deleteRemoteRanking(id = rankId)
             Result.success()
         } catch (e: Exception) {
             println(e)

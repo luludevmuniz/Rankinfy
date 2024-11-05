@@ -9,17 +9,24 @@ import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.use_cases.UseCases
+import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.OnRankingDeleted
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,23 +37,27 @@ class RankingDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val useCases: UseCases
 ) : ViewModel() {
-    private val localRankingId = checkNotNull(savedStateHandle.get<Long>("id"))
+    private val localRankingId = MutableStateFlow(savedStateHandle.get<Long>("id"))
     private val adminPassword = savedStateHandle.get<String>("adminPassword")
-    private var createRemoteRankingJob: Job? = null
-    private var syncRemoteRankingJob: Job? = null
     private val _uiState = MutableStateFlow(RankingDetailsUiState())
     val uiState: StateFlow<RankingDetailsUiState> = _uiState.asStateFlow()
-    val ranking: StateFlow<Ranking?> = useCases.getRank(id = localRankingId)
-        .catch { e ->
-            e.printStackTrace()
+    private val _navigationEvent = Channel<OnRankingDeleted>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
-            //TODO: Logging
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val ranking: StateFlow<Ranking?> = localRankingId
+        .map { it }
+        .distinctUntilChanged()
+        .filterNotNull()
+        .flatMapLatest { id ->
+            useCases.getRanking(id)
+                .catch { e -> e.printStackTrace() }
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L, 0),
-            initialValue = Ranking()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), Ranking())
+
+    fun setLocalRankingId(id: Long) {
+        localRankingId.value = id
+    }
 
     init {
         viewModelScope.launch {
@@ -74,6 +85,7 @@ class RankingDetailsViewModel @Inject constructor(
                 remoteId = event.remoteId
             )
 
+            OnRankingDeleted -> closeRankingScreen()
             is RankingDetailsEvent.UpdatePlayer -> updatePlayer(player = event.player)
             is RankingDetailsEvent.OnNewPlayerNameChange -> changeNewPlayerName(name = event.name)
             is RankingDetailsEvent.OnNewPlayerScoreChange -> changeNewPlayerScore(score = event.score)
@@ -96,8 +108,8 @@ class RankingDetailsViewModel @Inject constructor(
     }
 
     private fun syncRemoteRanking(ranking: Ranking) {
-        syncRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
-            useCases.scheduleSyncRank(ranking = ranking)
+        viewModelScope.launch(Dispatchers.IO) {
+            useCases.scheduleSyncRanking(ranking = ranking)
                 .collectLatest { workInfo ->
                     if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                         _uiState.update { state ->
@@ -110,8 +122,8 @@ class RankingDetailsViewModel @Inject constructor(
     }
 
     private fun createRemoteRanking(ranking: Ranking) {
-        createRemoteRankingJob = viewModelScope.launch(Dispatchers.IO) {
-            useCases.scheduleRemoteRankCreation(
+        viewModelScope.launch(Dispatchers.IO) {
+            useCases.scheduleRemoteRankingCreation(
                 ranking = CreateRankingDTO(
                     name = ranking.name,
                     adminPassword = adminPassword.orEmpty(),
@@ -135,11 +147,12 @@ class RankingDetailsViewModel @Inject constructor(
         hideDeleteRankingDialog()
         viewModelScope.launch(Dispatchers.IO) {
             val success = async {
-                useCases.deleteRank(id = localId) != 0
+                useCases.deleteRanking(id = localId) != 0
             }.await()
             if (success && remoteId != null) {
-                useCases.scheduleRemoteRankDeletion(rankId = remoteId)
+                useCases.scheduleRemoteRankingDeletion(rankId = remoteId)
             }
+            closeRankingScreen()
         }
     }
 
@@ -307,6 +320,13 @@ class RankingDetailsViewModel @Inject constructor(
     private fun hidePlayerDialogScoreFieldError() {
         _uiState.update { state ->
             state.copy(isPlayerDialogScoreFieldWithError = false)
+        }
+    }
+
+
+    private fun closeRankingScreen() {
+        viewModelScope.launch {
+            _navigationEvent.send(OnRankingDeleted)
         }
     }
 }

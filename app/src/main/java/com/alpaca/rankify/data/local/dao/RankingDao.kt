@@ -29,9 +29,6 @@ interface RankingDao {
     @Query("DELETE FROM $RANKING_TABLE WHERE local_id = :id")
     suspend fun deleteRanking(id: Long): Int
 
-//    @Update
-//    suspend fun updateRankingWithPlayers(rankingWithPlayers: RankingWithPlayers)
-
     @Update
     suspend fun updateRanking(ranking: RankingEntity)
 }

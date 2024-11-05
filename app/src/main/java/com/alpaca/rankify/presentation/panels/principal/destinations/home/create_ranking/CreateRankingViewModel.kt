@@ -17,10 +17,12 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,10 +35,8 @@ class CreateRankingViewModel @Inject constructor(
     val rankingNameUiState = _rankingNameUiState.asStateFlow()
     private val _rankingPasswordUiState = MutableStateFlow(RankingPasswordUiState())
     val rankingPasswordUiState = _rankingPasswordUiState.asStateFlow()
-//    private val _uiState = MutableStateFlow(CreateRankingUiState())
-//    val uiState = _uiState.asStateFlow()
-    private val _navigationEvent = MutableSharedFlow<RankingCreated>()
-    val navigationEvent = _navigationEvent.asSharedFlow()
+    private val _navigationEvent = Channel<RankingCreated>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     fun onEvent(event: CreateRankingEvent) {
         when (event) {
@@ -65,12 +65,12 @@ class CreateRankingViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val id = async(Dispatchers.IO) {
-                    useCases.createRank(
+                    useCases.createRanking(
                         rankingName = name,
                         rankingAdminPassword = password
                     )
                 }
-                _navigationEvent.emit(
+                _navigationEvent.send(
                     RankingCreated(
                         id = id.await(),
                         adminPassword = password

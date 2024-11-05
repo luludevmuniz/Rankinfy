@@ -5,7 +5,7 @@ import com.alpaca.rankify.data.repository.Repository
 import com.alpaca.rankify.domain.model.CreateRankingDTO
 import kotlinx.coroutines.flow.Flow
 
-class ScheduleRemoteRankCreationUseCase(
+class ScheduleRemoteRankingCreationUseCase(
     private val repository: Repository
 ) {
     operator fun invoke(ranking: CreateRankingDTO): Flow<WorkInfo?> =

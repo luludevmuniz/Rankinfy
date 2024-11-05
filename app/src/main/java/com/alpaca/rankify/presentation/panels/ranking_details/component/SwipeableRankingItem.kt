@@ -13,20 +13,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.alpaca.rankify.R
 import com.alpaca.rankify.domain.model.Player
+import com.alpaca.rankify.presentation.common.SwipeBox
 import com.alpaca.rankify.ui.theme.EXTRA_LARGE_PADDING
-import com.alpaca.rankify.ui.theme.RankifyTheme
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
+import com.alpaca.rankify.ui.theme.RankifyTheme
+
+@Composable
+fun SwipeableRankingItem(
+    modifier: Modifier = Modifier,
+    player: () -> Player,
+    onEdit: (Player) -> Unit,
+    onDelete: (Player) -> Unit
+) {
+    val updatedOnEditPlayer by rememberUpdatedState(onEdit)
+    val updatedOnDeletePlayer by rememberUpdatedState(onDelete)
+
+    SwipeBox(
+        modifier = modifier,
+        onDelete = {
+            updatedOnDeletePlayer(player())
+        },
+        onEdit = {
+            updatedOnEditPlayer(player())
+        }
+    ) {
+        RankingItem(player = player)
+    }
+}
 
 @Composable
 fun RankingItem(
     modifier: Modifier = Modifier,
-    player: Player,
+    player: () -> Player,
 ) {
     Row(
         modifier = modifier,
@@ -46,17 +72,18 @@ fun RankingItem(
                 Text(
                     text = stringResource(
                         R.string.posicao_ranking,
-                        player.currentRankingPosition
+                        player().currentRankingPosition
                     )
                 )
-                Text(text = player.name)
-                Text(text = player.score)
+                Text(text = player().name)
+                Text(text = player().score)
             }
         }
-        if (player.currentRankingPosition != 0) {
-            val rankingIcon = if (player.currentRankingPosition < player.previousRankingPosition)
-                Icons.Default.KeyboardArrowUp else
-                Icons.Default.KeyboardArrowDown
+        if (player().currentRankingPosition != 0) {
+            val rankingIcon =
+                if (player().currentRankingPosition < player().previousRankingPosition)
+                    Icons.Default.KeyboardArrowUp else
+                    Icons.Default.KeyboardArrowDown
             Icon(
                 imageVector = rankingIcon,
                 contentDescription = null,

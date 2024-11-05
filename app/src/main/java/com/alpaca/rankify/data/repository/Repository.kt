@@ -12,7 +12,7 @@ import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.data.worker.CreateRemotePlayerWorker
 import com.alpaca.rankify.data.worker.CreateRemoteRankingWorker
 import com.alpaca.rankify.data.worker.DeleteRemotePlayerWorker
-import com.alpaca.rankify.data.worker.DeleteRemoteRankWorker
+import com.alpaca.rankify.data.worker.DeleteRemoteRankingWorker
 import com.alpaca.rankify.data.worker.SyncRankingWorker
 import com.alpaca.rankify.data.worker.UpdateRemotePlayerWorker
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
@@ -144,8 +144,14 @@ constructor(
 
     suspend fun updateRemotePlayer(player: UpdatePlayerDTO) = remote.updatePlayer(player = player)
 
-    suspend fun searchRanking(id: Long): Long {
-        val ranking = remote.getRanking(id = id)
+    suspend fun searchRanking(
+        id: Long,
+        adminPassword: String?
+    ): Long {
+        val ranking = remote.getRanking(
+            id = id,
+            password = adminPassword
+        )
         return saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
     }
 
@@ -347,7 +353,7 @@ constructor(
         val workName = "${UNIQUE_WORK_NAME_DELETE_REMOTE_RANKING}_" + "RANK_ID_$rankId"
 
         val deleteRemoteRankRequest =
-            OneTimeWorkRequestBuilder<DeleteRemoteRankWorker>()
+            OneTimeWorkRequestBuilder<DeleteRemoteRankingWorker>()
                 .setInputData(data)
                 .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()

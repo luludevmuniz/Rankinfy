@@ -9,6 +9,7 @@ sealed interface RankingDetailsEvent {
         val localId: Long,
         val remoteId: Long?
     ) : RankingDetailsEvent
+    data object OnRankingDeleted : RankingDetailsEvent
     data class DeletePlayer(val player: Player) : RankingDetailsEvent
     data class UpdatePlayer(val player: Player) : RankingDetailsEvent
     data class ShowEditPlayerDialog(val player: Player) : RankingDetailsEvent

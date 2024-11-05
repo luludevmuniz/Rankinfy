@@ -17,16 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.alpaca.rankify.R
+import com.alpaca.rankify.navigation.RankingDestination
 import com.alpaca.rankify.ui.theme.RankifyTheme
 
 @Composable
-fun MyRankingsScreen(
+fun MyRankingsListScreen(
     myRankingsViewModel: MyRankingsViewModel = hiltViewModel(),
-    onRankingClicked: (Long) -> Unit
+    onRankingClicked: (RankingDestination) -> Unit
 ) {
     val rankings by myRankingsViewModel.savedRankings.collectAsStateWithLifecycle()
     Scaffold { paddingValues ->
@@ -37,7 +40,7 @@ fun MyRankingsScreen(
                 modifier = Modifier.padding(paddingValues = paddingValues),
                 rankings = rankings,
                 onClick = { id ->
-                    onRankingClicked(id)
+                    onRankingClicked(RankingDestination(id = id))
                 },
                 onDelete = { id ->
                     myRankingsViewModel.deleteRanking(id)
@@ -54,18 +57,15 @@ fun EmptyMyRankingsScreen() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Icon
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.List,
-            contentDescription = "Empty Rankings",
+            contentDescription = stringResource(R.string.empty_rankings),
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.primary
         )
-
-        // Text
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No rankings yet",
+            text = stringResource(R.string.no_rankings_yet),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground
         )

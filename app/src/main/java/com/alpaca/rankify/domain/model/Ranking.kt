@@ -1,8 +1,11 @@
 package com.alpaca.rankify.domain.model
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -11,7 +14,7 @@ import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 import kotlinx.serialization.Serializable
 
-@Stable
+@Immutable
 @Serializable
 data class Ranking(
     val localId: Long = 0L,
@@ -22,7 +25,7 @@ data class Ranking(
     val adminPassword: String? = null,
     val isAdmin: Boolean = false
 ) {
-    val sortedPlayers get() = players.sortedBy { it.currentRankingPosition }
+    val sortedPlayers get() = players.sortedBy { it.currentRankingPosition }.toImmutableList()
     val formattedLastUpdated: String
         get() = lastUpdated?.format(
             LocalDateTime.Format {
