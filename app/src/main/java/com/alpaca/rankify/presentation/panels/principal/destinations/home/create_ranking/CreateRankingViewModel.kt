@@ -7,6 +7,7 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideRankingNameError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideRankingPasswordError
+import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.RequestIdle
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowRankingNameError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowRankingPasswordError
@@ -44,6 +45,7 @@ class CreateRankingViewModel @Inject constructor(
             ShowRankingNameError -> showRankingNameError()
             ShowRankingPasswordError -> showRankingPasswordError()
             TogglePasswordVisibility -> togglePasswordVisibility()
+            RequestIdle -> changeStateToIdle()
             is CreateRanking -> createRanking(name = event.name)
             is UpdateRankingName -> updateRankingName(name = event.name)
             is UpdateRankingPassword -> updateRankingPassword(password = event.password)
@@ -153,19 +155,7 @@ class CreateRankingViewModel @Inject constructor(
         }
     }
 
-    private fun resetUiState() {
-        _rankingNameUiState.update { state ->
-            state.copy(
-                value = "",
-                error = false
-            )
-        }
-        _rankingPasswordUiState.update { state ->
-            state.copy(
-                value = "",
-                error = false,
-                isVisible = false
-            )
-        }
+    private fun changeStateToIdle() {
+        _rankingRequestState.value = RequestState.Idle
     }
 }

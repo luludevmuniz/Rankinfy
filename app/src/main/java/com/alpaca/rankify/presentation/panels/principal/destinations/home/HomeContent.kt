@@ -9,10 +9,12 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import com.alpaca.rankify.navigation.TabsDestinations
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingPanel
@@ -28,7 +30,10 @@ fun HomeContent(
 ) {
     val tabs = listOf(TabsDestinations.CREATE_RANKING, TabsDestinations.SEARCH_RANKING)
     val tabIndex = remember { mutableIntStateOf(0) }
-
+    val focusManager = LocalFocusManager.current
+    SideEffect {
+        focusManager.clearFocus()
+    }
     Column(
         modifier = modifier
     ) {

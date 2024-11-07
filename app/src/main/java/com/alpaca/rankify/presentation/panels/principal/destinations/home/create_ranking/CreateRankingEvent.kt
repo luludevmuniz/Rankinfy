@@ -10,6 +10,6 @@ sealed interface CreateRankingEvent {
     data object HideRankingPasswordError: CreateRankingEvent
     data object ShowLoading: CreateRankingEvent
     data object HideLoading: CreateRankingEvent
+    data object RequestIdle: CreateRankingEvent
     data class CreateRanking(val name: String): CreateRankingEvent
-    data class RankingCreated(val id: Long, val adminPassword: String)
 }

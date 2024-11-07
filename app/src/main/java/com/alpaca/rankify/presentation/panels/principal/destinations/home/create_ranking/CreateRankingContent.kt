@@ -52,6 +52,7 @@ fun CreateRankingPanel(
             is RequestState.Error -> {
                 viewModel.onEvent(CreateRankingEvent.HideLoading)
                 showSnackBar(rankingRequestState.getErrorMessage())
+                viewModel.onEvent(CreateRankingEvent.RequestIdle)
             }
             RequestState.Loading -> viewModel.onEvent(CreateRankingEvent.ShowLoading)
             RequestState.Idle -> Unit
@@ -148,6 +149,7 @@ private fun CreateRankingButton(
         onClick = {
             onCreateClick()
         },
+        enabled = isLoading().not()
     ) {
         if (isLoading()) {
             CircularProgressIndicator()
