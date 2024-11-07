@@ -7,7 +7,6 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideRankingNameError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideRankingPasswordError
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.RankingCreated
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowRankingNameError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowRankingPasswordError
@@ -15,13 +14,12 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingName
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingPassword
 import com.alpaca.rankify.util.Constants.MIN_RANKING_PASSWORD_SIZE
+import com.alpaca.rankify.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,8 +32,8 @@ class CreateRankingViewModel @Inject constructor(
     val rankingNameUiState = _rankingNameUiState.asStateFlow()
     private val _rankingPasswordUiState = MutableStateFlow(RankingPasswordUiState())
     val rankingPasswordUiState = _rankingPasswordUiState.asStateFlow()
-    private val _navigationEvent = Channel<RankingCreated>()
-    val navigationEvent = _navigationEvent.receiveAsFlow()
+    private val _rankingRequestState = MutableStateFlow<RequestState<Long>>(RequestState.Idle)
+    val rankingRequestState = _rankingRequestState.asStateFlow()
 
     fun onEvent(event: CreateRankingEvent) {
         when (event) {
@@ -62,23 +60,13 @@ class CreateRankingViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            try {
-                val id = async(Dispatchers.IO) {
-                    useCases.createRanking(
-                        rankingName = name,
-                        rankingAdminPassword = password
-                    )
-                }
-                _navigationEvent.send(
-                    RankingCreated(
-                        id = id.await(),
-                        adminPassword = password
-                    )
+            _rankingRequestState.value = RequestState.Loading
+            _rankingRequestState.value = async(Dispatchers.IO) {
+                useCases.createRanking(
+                    rankingName = name,
+                    rankingAdminPassword = password
                 )
-                resetUiState()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            }.await()
         }
     }
 
@@ -141,9 +129,9 @@ class CreateRankingViewModel @Inject constructor(
     private fun updateRankingName(name: String) {
         _rankingNameUiState.update { state ->
             state.copy(
-                    value = name,
-                    error = if (state.error && name.isNotEmpty()) false else state.error
-                )
+                value = name,
+                error = if (state.error && name.isNotEmpty()) false else state.error
+            )
 
         }
     }
@@ -151,9 +139,9 @@ class CreateRankingViewModel @Inject constructor(
     private fun updateRankingPassword(password: String) {
         _rankingPasswordUiState.update { state ->
             state.copy(
-                    value = password,
-                    error = if (state.error && password.length >= 6) false else state.error
-                )
+                value = password,
+                error = if (state.error && password.length >= 6) false else state.error
+            )
         }
     }
 

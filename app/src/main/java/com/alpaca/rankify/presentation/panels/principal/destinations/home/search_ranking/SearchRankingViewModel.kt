@@ -7,20 +7,18 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.RankingPasswordUiState
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.HideLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.HideSearchedIdError
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.RankingSearched
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.SearchRanking
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.ShowLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.ShowSearchedIdError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateRankingAdminPassword
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedId
+import com.alpaca.rankify.util.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,8 +31,8 @@ class SearchRankingViewModel @Inject constructor(private val useCases: UseCases)
     val rankingIdUiState = _rankingIdUiState.asStateFlow()
     private val _rankingAdminPasswordUiState = MutableStateFlow(RankingPasswordUiState())
     val rankingAdminPasswordUiState = _rankingAdminPasswordUiState.asStateFlow()
-    private val _navigationEvent = Channel<RankingSearched>()
-    val navigationEvent = _navigationEvent.receiveAsFlow()
+    private val _rankingRequestState = MutableStateFlow<RequestState<Long>>(RequestState.Idle)
+    val rankingRequestState = _rankingRequestState.asStateFlow()
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
@@ -48,6 +46,7 @@ class SearchRankingViewModel @Inject constructor(private val useCases: UseCases)
             ShowSearchedIdError -> showSearchedIdError()
             SearchRankingEvent.ChangeIsAdministrator -> changeIsAdministrator()
             SearchRankingEvent.ToggleAdminPasswordVisibility -> changeAdminPasswordVisibility()
+            SearchRankingEvent.RequestIdle -> changeStateToIdle()
             is UpdateSearchedId -> updateSearchedId(id = event.id)
             is UpdateRankingAdminPassword -> updateRankingAdminPassword(password = event.password)
         }
@@ -66,15 +65,14 @@ class SearchRankingViewModel @Inject constructor(private val useCases: UseCases)
         ) {
             return
         }
-        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
-            val searchedRankingId = async {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            _rankingRequestState.value = RequestState.Loading
+            _rankingRequestState.value = async(Dispatchers.IO) {
                 useCases.searchRanking(
                     id = id.toLongOrNull() ?: 0L,
                     adminPassword = password
                 )
             }.await()
-            _navigationEvent.send(RankingSearched(id = searchedRankingId))
-            resetUiState()
         }
     }
 
@@ -205,5 +203,9 @@ class SearchRankingViewModel @Inject constructor(private val useCases: UseCases)
                 isVisible = false
             )
         }
+    }
+
+    private fun changeStateToIdle() {
+        _rankingRequestState.value = RequestState.Idle
     }
 }

@@ -1,5 +1,6 @@
 package com.alpaca.rankify.data.repository
 
+import android.accounts.NetworkErrorException
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -38,6 +39,7 @@ import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_NAME
 import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_SCORE
 import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
 import com.alpaca.rankify.util.Constants.WORK_MANAGER_DEFAULT_CONSTRAINTS
+import com.alpaca.rankify.util.RequestState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -53,14 +55,18 @@ constructor(
     suspend fun createRanking(
         rankingName: String,
         rankingAdminPassword: String
-    ): Long {
-        val rankingEntity =
-            RankingEntity(
-                name = rankingName,
-                isAdmin = true,
-                adminPassword = rankingAdminPassword
-            )
-        return local.saveRanking(ranking = rankingEntity)
+    ): RequestState<Long> {
+        return try {
+            val rankingEntity =
+                RankingEntity(
+                    name = rankingName,
+                    isAdmin = true,
+                    adminPassword = rankingAdminPassword
+                )
+            RequestState.Success(local.saveRanking(ranking = rankingEntity))
+        } catch (e: Exception) {
+            RequestState.Error("An error occurred: ${e.message}")
+        }
     }
 
     suspend fun updateRanking(ranking: RankingEntity) = local.updateRanking(ranking = ranking)
@@ -150,20 +156,20 @@ constructor(
 
     suspend fun updateRemotePlayer(player: UpdatePlayerDTO) = remote.updatePlayer(player = player)
 
-    suspend fun searchRanking(
-        id: Long,
-        adminPassword: String?
-    ): Long {
-        val ranking = remote.getRanking(
-            id = id,
-            password = adminPassword
-        )
-        val alreadyExistingRanking = getRankingWithRemoteId(ranking.apiId).firstOrNull()
-        if (alreadyExistingRanking == null) {
-            return saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
-        } else {
-            return alreadyExistingRanking.localId
-        }
+    suspend fun searchRanking(id: Long, adminPassword: String?): RequestState<Long> = try {
+        RequestState.Success(fetchAndSaveRanking(id, adminPassword))
+    } catch (e: NetworkErrorException) {
+        RequestState.Error("Network error: ${e.message}")
+    } catch (e: Exception) {
+        RequestState.Error("An error occurred: ${e.message}")
+    }
+
+
+    private suspend fun fetchAndSaveRanking(id: Long, adminPassword: String?): Long {
+        val ranking = remote.getRanking(id = id, password = adminPassword)
+        val existingRanking = getRankingWithRemoteId(ranking.apiId).firstOrNull()
+        return existingRanking?.localId
+            ?: saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
     }
 
     private suspend fun updatePlayersPositionInRanking(rankingId: Long) {

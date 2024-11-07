@@ -28,4 +28,5 @@
     <string name="os_administradores_do_ranking_ainda_n_o_adicionaram_jogadores">Os administradores do ranking ainda não adicionaram jogadores.</string>
     <string name="no_rankings_yet">No rankings yet</string>
     <string name="empty_rankings">Empty Rankings</string>
+    <string name="sou_administrador_do_ranking">Sou administrador do ranking</string>
 </resources>

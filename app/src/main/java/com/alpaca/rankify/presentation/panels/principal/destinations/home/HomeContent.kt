@@ -15,31 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.alpaca.rankify.navigation.TabsDestinations
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingContent
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.RankingNameUiState
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.RankingPasswordUiState
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingContent
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingUiState
+import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingPanel
+import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingPanel
 
 @Composable
 @NonRestartableComposable
 @OptIn(ExperimentalMaterial3Api::class)
- fun HomeContent(
+fun HomeContent(
     modifier: Modifier = Modifier,
-    nameState: () -> RankingNameUiState,
-    rankingIdState: () -> RankingNameUiState,
-    rankingAdminPasswordState: () -> RankingPasswordUiState,
-    passwordState: () -> RankingPasswordUiState,
-    searchRankingUiState: () -> SearchRankingUiState,
-    onUpdateRankingName: (String) -> Unit,
-    onUpdateRankingPassword: (String) -> Unit,
-    onUpdateRankingAdminPassword: (String) -> Unit,
-    onTogglePasswordVisibility: () -> Unit,
-    onToggleAdminPasswordVisibility: () -> Unit,
-    onCreateRanking: () -> Unit,
-    onUpdateSearchedId: (String) -> Unit,
-    onSearchRankingClick: () -> Unit,
-    onIsAdministratorChange: () -> Unit
+    navigateToRanking: (Long, String?) -> Unit,
+    showSnackBar: (String) -> Unit
 ) {
     val tabs = listOf(TabsDestinations.CREATE_RANKING, TabsDestinations.SEARCH_RANKING)
     val tabIndex = remember { mutableIntStateOf(0) }
@@ -51,8 +36,10 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
             selectedTabIndex = tabIndex.intValue,
             tabs = {
                 tabs.forEachIndexed { index, tab ->
-                    Tab(text = {
-                        Text(stringResource(tab.label)) },
+                    Tab(
+                        text = {
+                            Text(stringResource(tab.label))
+                        },
                         selected = tabIndex.intValue == index,
                         onClick = {
                             tabIndex.intValue = index
@@ -66,42 +53,15 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
             contentAlignment = Alignment.Center
         ) {
             when (tabs[tabIndex.intValue]) {
-                TabsDestinations.CREATE_RANKING -> CreateRankingContent(
-                    nameState = nameState,
-                    passwordState = passwordState,
-                    onRankingNameChange = onUpdateRankingName,
-                    onRankingPasswordChange = onUpdateRankingPassword,
-                    onTogglePasswordVisibility = onTogglePasswordVisibility,
-                    onCreateClick = onCreateRanking
+                TabsDestinations.CREATE_RANKING -> CreateRankingPanel(
+                    navigateToRanking = navigateToRanking,
+                    showSnackBar = showSnackBar
                 )
-                TabsDestinations.SEARCH_RANKING -> SearchRankingContent(
-                    searchRankingUiState = searchRankingUiState,
-                    onRankingIdChange = onUpdateSearchedId,
-                    onSearchRankingClick = onSearchRankingClick,
-                    idUiState = rankingIdState,
-                    passwordState = rankingAdminPasswordState,
-                    onRankingPasswordChange = onUpdateRankingAdminPassword,
-                    onTogglePasswordVisibility = onToggleAdminPasswordVisibility,
-                    onIsAdministratorChange = onIsAdministratorChange
+                TabsDestinations.SEARCH_RANKING -> SearchRankingPanel(
+                    navigateToRanking = navigateToRanking,
+                    showSnackBar = showSnackBar
                 )
             }
         }
     }
 }
-//
-//@Preview(showBackground = true)
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//fun HomeContentPreview() {
-//    HomeContent(
-//        modifier = Modifier.background(color = MaterialTheme.colorScheme.surface),
-//        createRankingUiState = { CreateRankingUiState() },
-//        searchRankingUiState = { SearchRankingUiState() },
-//        onUpdateRankingName = {},
-//        onUpdateRankingPassword = {},
-//        onTogglePasswordVisibility = {},
-//        onCreateRanking = {},
-//        onUpdateSearchedId = {},
-//        onSearchRankingClick = {}
-//    )
-//}
