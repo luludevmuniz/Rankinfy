@@ -8,8 +8,6 @@ sealed interface CreateRankingEvent {
     data object HideRankingNameError: CreateRankingEvent
     data object ShowRankingPasswordError: CreateRankingEvent
     data object HideRankingPasswordError: CreateRankingEvent
-    data object ShowLoading: CreateRankingEvent
-    data object HideLoading: CreateRankingEvent
     data object RequestIdle: CreateRankingEvent
     data class CreateRanking(val name: String): CreateRankingEvent
 }

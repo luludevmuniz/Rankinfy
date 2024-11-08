@@ -3,6 +3,7 @@ package com.alpaca.rankify.presentation.panels.principal.destinations.home.searc
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -113,6 +115,7 @@ fun SearchRankingPanel(
     )
 }
 
+@NonRestartableComposable
 @Composable
 fun SearchRankingContent(
     modifier: Modifier = Modifier,
@@ -128,64 +131,114 @@ fun SearchRankingContent(
     Column(
         modifier = modifier
     ) {
-        RankingIdOutlinedTextField(
-            nameState = idUiState,
-            onRankingIdChange = { id ->
-                onRankingIdChange(id)
+        RankingIdTextField(
+            idUiState = idUiState,
+            onRankingIdChange = onRankingIdChange,
+            searchRankingUiState = searchRankingUiState
+        )
+        AdminPasswordTextField(
+            searchRankingUiState = searchRankingUiState,
+            passwordState = passwordState,
+            onRankingPasswordChange = onRankingPasswordChange,
+            onTogglePasswordVisibility = onTogglePasswordVisibility
+        )
+        AdminCheckBox(
+            searchRankingUiState = searchRankingUiState,
+            onIsAdministratorChange = onIsAdministratorChange,
+        )
+        SearchRankingButton(
+            onSearchRankingClick = onSearchRankingClick,
+            searchRankingUiState = searchRankingUiState
+        )
+    }
+}
+
+@Composable
+private fun RankingIdTextField(
+    idUiState: () -> RankingNameUiState,
+    onRankingIdChange: (String) -> Unit,
+    searchRankingUiState: () -> SearchRankingUiState
+) {
+    RankingIdOutlinedTextField(
+        nameState = idUiState,
+        onRankingIdChange = { id ->
+            onRankingIdChange(id)
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = if (searchRankingUiState().isAdministrator)
+                ImeAction.Next else
+                ImeAction.Done
+        ),
+        label = {
+            Text(stringResource(R.string.id_do_ranking))
+        },
+        placeholder = {
+            Text(stringResource(R.string.apenas_numeros))
+        },
+        prefix = {
+            Text("#")
+        }
+    )
+}
+
+@Composable
+private fun ColumnScope.AdminPasswordTextField(
+    searchRankingUiState: () -> SearchRankingUiState,
+    passwordState: () -> RankingPasswordUiState,
+    onRankingPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(MEDIUM_PADDING))
+    AnimatedVisibility(visible = searchRankingUiState().isAdministrator) {
+        PasswordOutlinedTextField(
+            passwordState = passwordState,
+            onPasswordChange = { password ->
+                onRankingPasswordChange(password)
             },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = if (searchRankingUiState().isAdministrator)
-                    ImeAction.Next else
-                    ImeAction.Done
-            ),
-            label = {
-                Text(stringResource(R.string.id_do_ranking))
+            onTogglePasswordVisibility = {
+                onTogglePasswordVisibility()
             },
-            placeholder = {
-                Text(stringResource(R.string.apenas_numeros))
-            },
-            prefix = {
-                Text("#")
+        )
+    }
+}
+
+@Composable
+private fun AdminCheckBox(
+    searchRankingUiState: () -> SearchRankingUiState,
+    onIsAdministratorChange: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.clickable { onIsAdministratorChange() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = searchRankingUiState().isAdministrator,
+            onCheckedChange = {
+                onIsAdministratorChange()
             }
         )
-        Spacer(modifier = Modifier.height(MEDIUM_PADDING))
-        AnimatedVisibility(visible = searchRankingUiState().isAdministrator) {
-            PasswordOutlinedTextField(
-                passwordState = passwordState,
-                onPasswordChange = { password ->
-                    onRankingPasswordChange(password)
-                },
-                onTogglePasswordVisibility = {
-                    onTogglePasswordVisibility()
-                },
-            )
-        }
-        Row(
-            modifier = Modifier.clickable { onIsAdministratorChange() },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = searchRankingUiState().isAdministrator,
-                onCheckedChange = {
-                    onIsAdministratorChange()
-                }
-            )
-            Text(
-                text = stringResource(R.string.sou_administrador_do_ranking),
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-        FilledTonalButton(
-            modifier = Modifier.align(Alignment.End),
-            onClick = onSearchRankingClick,
-            enabled = searchRankingUiState().isLoading.not()
-        ) {
-            if (searchRankingUiState().isLoading) {
-                CircularProgressIndicator()
-            } else {
-                Text(stringResource(R.string.buscar_ranking))
-            }
+        Text(
+            text = stringResource(R.string.sou_administrador_do_ranking),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Composable
+private fun ColumnScope.SearchRankingButton(
+    onSearchRankingClick: () -> Unit,
+    searchRankingUiState: () -> SearchRankingUiState
+) {
+    FilledTonalButton(
+        modifier = Modifier.Companion.align(Alignment.End),
+        onClick = onSearchRankingClick,
+        enabled = searchRankingUiState().isLoading.not()
+    ) {
+        if (searchRankingUiState().isLoading) {
+            CircularProgressIndicator()
+        } else {
+            Text(stringResource(R.string.buscar_ranking))
         }
     }
 }

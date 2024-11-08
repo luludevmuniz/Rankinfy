@@ -43,18 +43,16 @@ fun CreateRankingPanel(
     LaunchedEffect(rankingRequestState) {
         when (rankingRequestState) {
             is RequestState.Success -> {
-                viewModel.onEvent(CreateRankingEvent.HideLoading)
                 navigateToRanking(
                     rankingRequestState.getSuccessData(),
                     rankingPasswordUiState.value
                 )
             }
             is RequestState.Error -> {
-                viewModel.onEvent(CreateRankingEvent.HideLoading)
                 showSnackBar(rankingRequestState.getErrorMessage())
                 viewModel.onEvent(CreateRankingEvent.RequestIdle)
             }
-            RequestState.Loading -> viewModel.onEvent(CreateRankingEvent.ShowLoading)
+            RequestState.Loading -> Unit
             RequestState.Idle -> Unit
         }
     }

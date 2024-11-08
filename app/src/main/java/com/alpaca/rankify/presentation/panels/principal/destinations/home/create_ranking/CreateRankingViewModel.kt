@@ -4,11 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alpaca.rankify.domain.use_cases.UseCases
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.CreateRanking
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideRankingNameError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.HideRankingPasswordError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.RequestIdle
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowLoading
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowRankingNameError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.ShowRankingPasswordError
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.TogglePasswordVisibility
@@ -38,10 +36,8 @@ class CreateRankingViewModel @Inject constructor(
 
     fun onEvent(event: CreateRankingEvent) {
         when (event) {
-            HideLoading -> hideLoading()
             HideRankingNameError -> hideRankingNameError()
             HideRankingPasswordError -> hideRankingPasswordError()
-            ShowLoading -> showLoading()
             ShowRankingNameError -> showRankingNameError()
             ShowRankingPasswordError -> showRankingPasswordError()
             TogglePasswordVisibility -> togglePasswordVisibility()
@@ -86,22 +82,6 @@ class CreateRankingViewModel @Inject constructor(
         } else {
             hideRankingPasswordError()
         }
-    }
-
-    private fun showLoading() {
-//        _uiState.update { state ->
-//            state.copy(
-//                isLoading = true
-//            )
-//        }
-    }
-
-    private fun hideLoading() {
-//        _uiState.update { state ->
-//            state.copy(
-//                isLoading = false
-//            )
-//        }
     }
 
     private fun showRankingNameError() {
