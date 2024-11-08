@@ -9,7 +9,7 @@ import com.alpaca.rankify.domain.use_cases.local.rank.delete_ranking.DeleteRanki
 import com.alpaca.rankify.domain.use_cases.local.rank.get_all_rankings.GetAllRankingsUseCase
 import com.alpaca.rankify.domain.use_cases.local.player.get_player.GetPlayerUseCase
 import com.alpaca.rankify.domain.use_cases.local.rank.get_ranking.GetRankingUseCase
-import com.alpaca.rankify.domain.use_cases.remote.ranking.get_remote_ranking.GetRemoteRanking
+import com.alpaca.rankify.domain.use_cases.remote.ranking.get_remote_ranking.GetRemoteRankingUseCase
 import com.alpaca.rankify.domain.use_cases.work.schedule_remote_rank_creation.ScheduleRemoteRankingCreationUseCase
 import com.alpaca.rankify.domain.use_cases.work.schedule_sync_rank.ScheduleSyncRankingUseCase
 import com.alpaca.rankify.domain.use_cases.remote.ranking.search_ranking.SearchRankingUseCase
@@ -33,7 +33,7 @@ data class UseCases(
     val updateRankWithPlayers: UpdateRankingWithPlayersUseCase,
     val getRanking: GetRankingUseCase,
     val getRankingWithRemoteId: GetRankingWithRemoteIdUseCase,
-    val getRemoteRanking: GetRemoteRanking,
+    val getRemoteRankingUseCase: GetRemoteRankingUseCase,
     val getAllRankings: GetAllRankingsUseCase,
     val deleteRanking: DeleteRankingUseCase,
     val deleteRemoteRanking: DeleteRemoteRankingUseCase,

@@ -22,7 +22,7 @@ import com.alpaca.rankify.domain.use_cases.remote.player.delete_remote_player.De
 import com.alpaca.rankify.domain.use_cases.remote.player.update_remote_player.UpdateRemotePlayerUseCase
 import com.alpaca.rankify.domain.use_cases.remote.ranking.create_remote_ranking.CreateRemoteRankingUseCase
 import com.alpaca.rankify.domain.use_cases.remote.ranking.delete_remote_ranking.DeleteRemoteRankingUseCase
-import com.alpaca.rankify.domain.use_cases.remote.ranking.get_remote_ranking.GetRemoteRanking
+import com.alpaca.rankify.domain.use_cases.remote.ranking.get_remote_ranking.GetRemoteRankingUseCase
 import com.alpaca.rankify.domain.use_cases.remote.ranking.search_ranking.SearchRankingUseCase
 import com.alpaca.rankify.domain.use_cases.work.schedule_remote_player_creation.ScheduleRemotePlayerCreationUseCase
 import com.alpaca.rankify.domain.use_cases.work.schedule_remote_player_deletion.ScheduleRemotePlayerDeletionUseCase
@@ -60,7 +60,7 @@ object RepositoryModule {
             deleteRanking = DeleteRankingUseCase(repository = rankingRepository),
             getRanking = GetRankingUseCase(repository = rankingRepository),
             getRankingWithRemoteId = GetRankingWithRemoteIdUseCase(repository = rankingRepository),
-            getRemoteRanking = GetRemoteRanking(repository = rankingRepository),
+            getRemoteRankingUseCase = GetRemoteRankingUseCase(repository = rankingRepository),
             getAllRankings = GetAllRankingsUseCase(repository = rankingRepository),
             deleteRemoteRanking = DeleteRemoteRankingUseCase(repository = rankingRepository),
             searchRanking = SearchRankingUseCase(repository = rankingRepository),

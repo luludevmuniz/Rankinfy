@@ -29,7 +29,7 @@ class SyncRankingWorker
 
             return try {
                 val remoteRanking =
-                    useCases.getRemoteRanking(
+                    useCases.getRemoteRankingUseCase(
                         id = remoteId,
                         password = null,
                     )
