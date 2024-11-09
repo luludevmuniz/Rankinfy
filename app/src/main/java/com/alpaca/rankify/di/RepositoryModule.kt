@@ -54,9 +54,9 @@ object RepositoryModule {
     ): UseCases =
         UseCases(
             createRanking = CreateRankingUseCase(repository = rankingRepository),
-            createRemoteRank = CreateRemoteRankingUseCase(repository = rankingRepository),
+            createRemoteRanking = CreateRemoteRankingUseCase(repository = rankingRepository),
             updateRanking = UpdateRankingUseCase(repository = rankingRepository),
-            updateRankWithPlayers = UpdateRankingWithPlayersUseCase(repository = rankingRepository),
+            updateRankingWithPlayers = UpdateRankingWithPlayersUseCase(repository = rankingRepository),
             deleteRanking = DeleteRankingUseCase(repository = rankingRepository),
             getRanking = GetRankingUseCase(repository = rankingRepository),
             getRankingWithRemoteId = GetRankingWithRemoteIdUseCase(repository = rankingRepository),

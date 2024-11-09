@@ -13,3 +13,10 @@ data class RankingDetailsUiState(
     val newPlayer: Player = Player(),
     val selectedPlayer: Player = Player()
 )
+
+data class RemoteSyncUiState(
+    val isSyncing: Boolean = true,
+    val message: String = "",
+    val attempts: Int = 0,
+    val stopReason: String = "",
+)

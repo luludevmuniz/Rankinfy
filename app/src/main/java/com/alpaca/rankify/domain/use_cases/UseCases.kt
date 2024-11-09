@@ -28,9 +28,9 @@ import com.alpaca.rankify.domain.use_cases.work.schedule_remote_rank_deletion.Sc
 
 data class UseCases(
     val createRanking: CreateRankingUseCase,
-    val createRemoteRank: CreateRemoteRankingUseCase,
+    val createRemoteRanking: CreateRemoteRankingUseCase,
     val updateRanking: UpdateRankingUseCase,
-    val updateRankWithPlayers: UpdateRankingWithPlayersUseCase,
+    val updateRankingWithPlayers: UpdateRankingWithPlayersUseCase,
     val getRanking: GetRankingUseCase,
     val getRankingWithRemoteId: GetRankingWithRemoteIdUseCase,
     val getRemoteRankingUseCase: GetRemoteRankingUseCase,

@@ -9,6 +9,12 @@ object Constants {
     const val PLAYER_TABLE = "players"
     const val DATABASE_NAME = "pongrankings.db"
     const val MIN_RANKING_PASSWORD_SIZE = 6
+    //API
+    const val RANKING_ENDPOINT = "/ranking"
+    const val PLAYER_ENDPOINT = "/player"
+    const val PARAMETER_ID = "id"
+    const val PARAMETER_PASSWORD = "password"
+    //WORKMANAGER
     const val WORK_DATA_LOCAL_RANKING_ID = "localId"
     const val WORK_DATA_REMOTE_RANK_ID = "remoteId"
     const val WORK_DATA_ADMIN_PASSWORD = "adminPassword"
@@ -22,10 +28,7 @@ object Constants {
     const val UNIQUE_WORK_NAME_CREATE_REMOTE_PLAYER = "CREATE_REMOTE_PLAYER_WORK"
     const val UNIQUE_WORK_NAME_DELETE_REMOTE_PLAYER = "DELETE_REMOTE_PLAYER_WORK"
     const val UNIQUE_WORK_NAME_UPDATE_REMOTE_PLAYER = "UPDATE_REMOTE_PLAYER_WORK"
-    const val RANKING_ENDPOINT = "/ranking"
-    const val PLAYER_ENDPOINT = "/player"
-    const val PARAMETER_ID = "id"
-    const val PARAMETER_PASSWORD = "password"
+    const val WORK_DATA_MESSAGE = "message"
     val WORK_MANAGER_DEFAULT_CONSTRAINTS =
         Constraints
             .Builder()

@@ -3,13 +3,19 @@ package com.alpaca.rankify.presentation.panels.ranking_details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
+import androidx.work.WorkInfo.State.BLOCKED
+import androidx.work.WorkInfo.State.CANCELLED
+import androidx.work.WorkInfo.State.ENQUEUED
+import androidx.work.WorkInfo.State.FAILED
+import androidx.work.WorkInfo.State.RUNNING
+import androidx.work.WorkInfo.State.SUCCEEDED
 import com.alpaca.rankify.domain.model.CreateRankingDTO
 import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.use_cases.UseCases
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.OnRankingDeleted
+import com.alpaca.rankify.util.Constants.WORK_DATA_MESSAGE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,6 +47,9 @@ class RankingDetailsViewModel @Inject constructor(
     private val adminPassword = savedStateHandle.get<String>("adminPassword")
     private val _uiState = MutableStateFlow(RankingDetailsUiState())
     val uiState: StateFlow<RankingDetailsUiState> = _uiState.asStateFlow()
+    private val _remoteSyncUiState = MutableStateFlow(RemoteSyncUiState())
+    val remoteSyncUiState = _remoteSyncUiState.asStateFlow()
+
     private val _navigationEvent = Channel<OnRankingDeleted>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
@@ -111,11 +120,20 @@ class RankingDetailsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             useCases.scheduleSyncRanking(ranking = ranking)
                 .collectLatest { workInfo ->
-                    if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                        _uiState.update { state ->
-                            state.copy(isSyncing = false)
+                    when (workInfo?.state) {
+                        ENQUEUED -> {}
+                        RUNNING -> {}
+                        SUCCEEDED -> {
+                            cancel()
                         }
-                        cancel()
+
+                        FAILED -> {
+                            cancel()
+                        }
+
+                        BLOCKED -> {}
+                        CANCELLED -> cancel()
+                        null -> Unit
                     }
                 }
         }
@@ -130,11 +148,81 @@ class RankingDetailsViewModel @Inject constructor(
                     mobileId = ranking.localId
                 )
             ).collectLatest { workInfo ->
-                if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
-                    _uiState.update { state ->
-                        state.copy(isSyncing = false)
+                when (workInfo?.state) {
+                    ENQUEUED -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = false,
+                                message = "",
+                                attempts = workInfo.runAttemptCount,
+                                stopReason = "Enqueued"
+                            )
+                        }
                     }
-                    cancel()
+
+                    RUNNING -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = true,
+                                message = "",
+                                attempts = workInfo.runAttemptCount,
+                                stopReason = "Running"
+                            )
+                        }
+                    }
+
+                    SUCCEEDED -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = false,
+                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                    .orEmpty(),
+                                attempts = workInfo.runAttemptCount,
+                                stopReason = "Succeeded"
+                            )
+                        }
+                        cancel()
+                    }
+
+                    FAILED -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = false,
+                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                    .orEmpty(),
+                                attempts = workInfo.runAttemptCount,
+                                stopReason = "Failed"
+                            )
+                        }
+                        cancel()
+                    }
+
+                    BLOCKED -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = false,
+                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                    .orEmpty(),
+                                attempts = workInfo.runAttemptCount,
+                                stopReason = "Blocked"
+                            )
+                        }
+                    }
+
+                    CANCELLED -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = false,
+                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                    .orEmpty(),
+                                attempts = workInfo.runAttemptCount,
+                                stopReason = "Cancelled"
+                            )
+                        }
+                        cancel()
+                    }
+
+                    null -> Unit
                 }
             }
         }
@@ -322,7 +410,6 @@ class RankingDetailsViewModel @Inject constructor(
             state.copy(isPlayerDialogScoreFieldWithError = false)
         }
     }
-
 
     private fun closeRankingScreen() {
         viewModelScope.launch {

@@ -26,4 +26,9 @@
     <string name="no_rankings_yet">No rankings yet</string>
     <string name="empty_rankings">Empty Rankings</string>
     <string name="sou_administrador_do_ranking">Sou administrador do ranking</string>
+    <string name="um_erro_inesperado_aconteceu">Um erro inesperado aconteceu: %1$s</string>
+    <string name="oopss_parace_que_o_ranking_nao_existe_mais">Oopss, parace que o ranking não existe mais</string>
+    <string name="ranking_criado_sem_senha_de_administrador">Ranking criado sem senha de administrador</string>
+    <string name="network_error">Erro na requisição: %1$s</string>
+    <string name="ranking_criado_no_servidor_com_sucesso">Ranking criado no servidor com sucesso</string>
 </resources>
