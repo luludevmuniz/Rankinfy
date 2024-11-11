@@ -129,19 +129,85 @@ class RankingDetailsViewModel @Inject constructor(
             useCases.scheduleSyncRanking(ranking = ranking)
                 .collectLatest { workInfo ->
                     when (workInfo?.state) {
-                        ENQUEUED -> {}
-                        RUNNING -> {}
+                        ENQUEUED -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = false,
+                                    message = "",
+                                    attempts = workInfo.runAttemptCount,
+                                    state = "Enqueued"
+                                )
+                            }
+                        }
+
+                        RUNNING -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = true,
+                                    message = "",
+                                    attempts = workInfo.runAttemptCount,
+                                    state = "Running"
+                                )
+                            }
+                        }
+
                         SUCCEEDED -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = false,
+                                    message = workInfo.outputData.getString(MESSAGE),
+                                    attempts = workInfo.runAttemptCount,
+                                    state = "Succeeded"
+                                )
+                            }
                             cancel()
                         }
 
                         FAILED -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = false,
+                                    message = workInfo.outputData.getString(MESSAGE),
+                                    attempts = workInfo.runAttemptCount,
+                                    state = "Failed"
+                                )
+                            }
                             cancel()
                         }
 
-                        BLOCKED -> {}
-                        CANCELLED -> cancel()
-                        null -> Unit
+                        BLOCKED -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = false,
+                                    message = workInfo.outputData.getString(MESSAGE),
+                                    attempts = workInfo.runAttemptCount,
+                                    state = "Blocked"
+                                )
+                            }
+                        }
+
+                        CANCELLED -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = false,
+                                    message = workInfo.outputData.getString(MESSAGE),
+                                    attempts = workInfo.runAttemptCount,
+                                    state = "Cancelled"
+                                )
+                            }
+                            cancel()
+                        }
+
+                        null -> {
+                            _remoteSyncUiState.update { state ->
+                                state.copy(
+                                    isSyncing = false,
+                                    message = "",
+                                    attempts = 0,
+                                    state = ""
+                                )
+                            }
+                        }
                     }
                 }
         }
@@ -163,7 +229,7 @@ class RankingDetailsViewModel @Inject constructor(
                                 isSyncing = false,
                                 message = "",
                                 attempts = workInfo.runAttemptCount,
-                                stopReason = "Enqueued"
+                                state = "Enqueued"
                             )
                         }
                     }
@@ -174,7 +240,7 @@ class RankingDetailsViewModel @Inject constructor(
                                 isSyncing = true,
                                 message = "",
                                 attempts = workInfo.runAttemptCount,
-                                stopReason = "Running"
+                                state = "Running"
                             )
                         }
                     }
@@ -183,10 +249,9 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(MESSAGE)
-                                    .orEmpty(),
+                                message = workInfo.outputData.getString(MESSAGE),
                                 attempts = workInfo.runAttemptCount,
-                                stopReason = "Succeeded"
+                                state = "Succeeded"
                             )
                         }
                         cancel()
@@ -196,10 +261,9 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(MESSAGE)
-                                    .orEmpty(),
+                                message = workInfo.outputData.getString(MESSAGE),
                                 attempts = workInfo.runAttemptCount,
-                                stopReason = "Failed"
+                                state = "Failed"
                             )
                         }
                         cancel()
@@ -209,10 +273,9 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(MESSAGE)
-                                    .orEmpty(),
+                                message = workInfo.outputData.getString(MESSAGE),
                                 attempts = workInfo.runAttemptCount,
-                                stopReason = "Blocked"
+                                state = "Blocked"
                             )
                         }
                     }
@@ -221,16 +284,24 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(MESSAGE)
-                                    .orEmpty(),
+                                message = workInfo.outputData.getString(MESSAGE),
                                 attempts = workInfo.runAttemptCount,
-                                stopReason = "Cancelled"
+                                state = "Cancelled"
                             )
                         }
                         cancel()
                     }
 
-                    null -> Unit
+                    null -> {
+                        _remoteSyncUiState.update { state ->
+                            state.copy(
+                                isSyncing = false,
+                                message = "",
+                                attempts = 0,
+                                state = ""
+                            )
+                        }
+                    }
                 }
             }
         }

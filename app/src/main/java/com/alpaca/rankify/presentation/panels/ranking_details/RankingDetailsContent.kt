@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,76 +20,73 @@ import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alpaca.rankify.R
 import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.presentation.panels.ranking_details.component.RankingItem
 import com.alpaca.rankify.presentation.panels.ranking_details.component.SwipeableRankingItem
 import com.alpaca.rankify.ui.theme.EXTRA_LARGE_PADDING
+import com.alpaca.rankify.ui.theme.EXTRA_SMALL_PADDING
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
+import com.alpaca.rankify.ui.theme.RankifyTheme
 import com.alpaca.rankify.ui.theme.SMALL_PADDING
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.collections.immutable.persistentListOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RankingDetailsContent(
     modifier: Modifier = Modifier,
-    isSyncing: () -> Boolean,
+    remoteSyncUiState: () -> RemoteSyncUiState,
     isAdmin: () -> Boolean,
     lastUpdate: () -> String,
     players: () -> ImmutableList<Player>,
     onDeletePlayer: (Player) -> Unit,
     onEditPlayer: (Player) -> Unit
 ) {
-    val isRefreshing = remember { mutableStateOf(false) }
-    val state = rememberPullToRefreshState()
-    val scope = rememberCoroutineScope()
+//    val isRefreshing = remember { mutableStateOf(false) }
+//    val state = rememberPullToRefreshState()
+//    val scope = rememberCoroutineScope()
 
-    PullToRefreshBox(
-        modifier = modifier,
-        state = state,
-        isRefreshing = isRefreshing.value,
-        onRefresh = remember {
-            {
-                scope.launch {
-                    isRefreshing.value = true
-                    delay(1000)
-                    isRefreshing.value = false
-                    state.animateToHidden()
-                }
-            }
-        },
-    ) {
+//    PullToRefreshBox(
+//        modifier = modifier,
+//        state = state,
+//        isRefreshing = isRefreshing.value,
+//        onRefresh = remember {
+//            {
+//                scope.launch {
+//                    isRefreshing.value = true
+//                    delay(1000)
+//                    isRefreshing.value = false
+//                    state.animateToHidden()
+//                }
+//            }
+//        },
+//    ) {
         RankingDetails(
-            isSyncing = isSyncing,
             isAdmin = isAdmin,
+            remoteSyncUiState = remoteSyncUiState,
             lastUpdate = lastUpdate,
             players = players,
             onDeletePlayer = onDeletePlayer,
             onEditPlayer = onEditPlayer
         )
-    }
+//    }
 }
 
 @Composable
 @NonRestartableComposable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun RankingDetails(
-    isSyncing: () -> Boolean,
     isAdmin: () -> Boolean,
+    remoteSyncUiState: () -> RemoteSyncUiState,
     lastUpdate: () -> String,
     players: () -> ImmutableList<Player>,
     onDeletePlayer: (Player) -> Unit,
@@ -103,24 +100,35 @@ private fun RankingDetails(
         verticalArrangement = Arrangement.spacedBy(EXTRA_LARGE_PADDING),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (isSyncing()) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                state = rememberTooltipState(),
-                tooltip = {
-                    PlainTooltip {
-                        Text(text = stringResource(R.string.o_aplicativo_esta_sendo_sincronizado_com_o_servidor_as_informa_es_podem_estar_desatualizadas))
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+            state = rememberTooltipState(),
+            tooltip = {
+                PlainTooltip {
+                    Column(
+                        modifier = Modifier.padding(SMALL_PADDING),
+                        verticalArrangement = Arrangement.spacedBy(
+                            EXTRA_SMALL_PADDING
+                        )
+                    ) {
+                        Text(text = "Status da sincronização com o servidor:")
+                        Text(text = "Está sincronizando? ${remoteSyncUiState().isSyncing}")
+                        Text(text = "Estado: ${remoteSyncUiState().state}")
+                        Text(text = "Tentativas: ${remoteSyncUiState().attempts}")
+                        remoteSyncUiState().message
+                        Text(text = "Observação: ${remoteSyncUiState().message}")
                     }
                 }
-            ) {
-                Icon(
-                    modifier = Modifier.size(48.dp),
-                    imageVector = Icons.Default.Warning,
-                    tint = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
-                    contentDescription = "Conteúdo não sincronizado"
-                )
             }
+        ) {
+            Icon(
+                modifier = Modifier.size(32.dp),
+                imageVector = Icons.Default.Sync,
+                tint = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f),
+                contentDescription = "Conteúdo não sincronizado"
+            )
         }
+
         Text(
             text = if (lastUpdate().isBlank())
                 stringResource(R.string.o_ranking_ainda_nao_foi_salvo_no_servidor) else
@@ -214,5 +222,27 @@ private fun PlayersList(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RankingDetailsPrev(modifier: Modifier = Modifier) {
+    RankifyTheme {
+        RankingDetails(
+            isAdmin = { true },
+            lastUpdate = { "12:00" },
+            remoteSyncUiState = {
+                RemoteSyncUiState(
+                    isSyncing = true,
+                    state = "Não parou",
+                    attempts = 1,
+                    message = "Mensagem"
+                )
+            },
+            onEditPlayer = {},
+            onDeletePlayer = {},
+            players = { persistentListOf() }
+        )
     }
 }

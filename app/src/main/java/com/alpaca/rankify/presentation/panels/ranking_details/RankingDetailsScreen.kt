@@ -71,6 +71,7 @@ fun RankingDetailsScreen(
     }
     val ranking by rankingDetailsViewModel.ranking.collectAsStateWithLifecycle()
     val uiState by rankingDetailsViewModel.uiState.collectAsStateWithLifecycle()
+    val remoteSyncUiState by rankingDetailsViewModel.remoteSyncUiState.collectAsStateWithLifecycle()
     val lifecycleOwner = rememberUpdatedState(newValue = LocalLifecycleOwner.current)
 
     LaunchedEffect(lifecycleOwner.value.lifecycle) {
@@ -145,7 +146,7 @@ fun RankingDetailsScreen(
         ranking?.let {
             RankingDetailsContent(
                 modifier = Modifier.padding(paddingValues),
-                isSyncing = { uiState.isSyncing },
+                remoteSyncUiState = { remoteSyncUiState },
                 isAdmin = { ranking?.isAdmin ?: false },
                 lastUpdate = { ranking?.formattedLastUpdated.orEmpty() },
                 players = { ranking?.sortedPlayers ?: persistentListOf() },

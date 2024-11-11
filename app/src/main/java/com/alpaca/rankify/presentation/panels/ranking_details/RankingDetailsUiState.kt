@@ -16,7 +16,7 @@ data class RankingDetailsUiState(
 
 data class RemoteSyncUiState(
     val isSyncing: Boolean = true,
-    val message: String = "",
+    val message: String? = null,
     val attempts: Int = 0,
-    val stopReason: String = "",
+    val state: String = "",
 )
