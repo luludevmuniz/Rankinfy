@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.alpaca.rankify.navigation.RankingDestination
+import com.alpaca.rankify.navigation.RankingDestinationArgs
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsScreen
 import com.alpaca.rankify.util.TestingTags.Ranking.MY_RANKINGS_PANEL
 import com.alpaca.rankify.util.TestingTags.Ranking.RANKING_DETAILS_PANEL
@@ -21,11 +21,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyRankingsListDetail(
     modifier: Modifier = Modifier,
-    rankingId: Long? = null
+    rankingArgs: RankingDestinationArgs? = null
 ) {
     val inititalPane =
-        if (rankingId == null) ListDetailPaneScaffoldRole.List else ListDetailPaneScaffoldRole.Detail
-    val navigator = rememberListDetailPaneScaffoldNavigator<RankingDestination>(
+        if (rankingArgs == null) ListDetailPaneScaffoldRole.List else ListDetailPaneScaffoldRole.Detail
+    val navigator = rememberListDetailPaneScaffoldNavigator<RankingDestinationArgs>(
         initialDestinationHistory = listOf(
             ThreePaneScaffoldDestinationItem(
                 pane = inititalPane
@@ -62,7 +62,10 @@ fun MyRankingsListDetail(
             AnimatedPane {
                 RankingDetailsScreen(
                     modifier = modifier.testTag(RANKING_DETAILS_PANEL),
-                    rankingId = rankingId ?: navigator.currentDestination?.contentKey?.id,
+                    rankingArgs = rankingArgs ?: RankingDestinationArgs(
+                        id = navigator.currentDestination?.contentKey?.id ?: -1,
+                        adminPassword = navigator.currentDestination?.contentKey?.adminPassword
+                    ),
                     onBackClick = {
                         scope.launch {
                             navigator.navigateBack()

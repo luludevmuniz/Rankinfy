@@ -52,6 +52,7 @@ fun CreateRankingPanel(
                     rankingRequestState.getSuccessData(),
                     rankingPasswordUiState.value
                 )
+                viewModel.onEvent(CreateRankingEvent.RequestIdle)
             }
 
             is RequestState.Error -> {

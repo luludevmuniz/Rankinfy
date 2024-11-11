@@ -63,6 +63,7 @@ enum class TabsDestinations(
 }
 
 @Parcelize
-class RankingDestination(
-    val id: Long
+class RankingDestinationArgs(
+    val id: Long,
+    val adminPassword: String? = null
 ) : Parcelable

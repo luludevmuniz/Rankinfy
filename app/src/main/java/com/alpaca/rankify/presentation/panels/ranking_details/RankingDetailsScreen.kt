@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.alpaca.rankify.R
 import com.alpaca.rankify.domain.model.Player
+import com.alpaca.rankify.navigation.RankingDestinationArgs
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.CreatePlayer
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.DeletePlayer
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.DeleteRanking
@@ -60,12 +61,12 @@ import kotlinx.coroutines.launch
 fun RankingDetailsScreen(
     modifier: Modifier = Modifier,
     rankingDetailsViewModel: RankingDetailsViewModel = hiltViewModel(),
-    rankingId: Long? = null,
+    rankingArgs: RankingDestinationArgs? = null,
     onBackClick: () -> Unit
 ) {
     LaunchedEffect(Unit) {
-        rankingId?.let { id ->
-            rankingDetailsViewModel.setLocalRankingId(id)
+        rankingArgs?.let { id ->
+            rankingDetailsViewModel.setLocalRankingArgs(id)
         }
     }
     val ranking by rankingDetailsViewModel.ranking.collectAsStateWithLifecycle()

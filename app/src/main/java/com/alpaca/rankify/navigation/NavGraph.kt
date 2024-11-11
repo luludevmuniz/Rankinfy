@@ -48,7 +48,10 @@ fun SetupNavGraph(
             val rankingId = backStackEntry.arguments?.getLong("id")
             val adminPassword = backStackEntry.arguments?.getString("adminPassword")
             MyRankingsListDetail(
-                rankingId = rankingId
+                rankingArgs = RankingDestinationArgs(
+                    id = rankingId ?: -1,
+                    adminPassword = adminPassword
+                )
             )
         }
     }

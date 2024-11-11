@@ -14,6 +14,7 @@ import com.alpaca.rankify.domain.model.Player
 import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.use_cases.UseCases
+import com.alpaca.rankify.navigation.RankingDestinationArgs
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.OnRankingDeleted
 import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,8 +44,14 @@ class RankingDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val useCases: UseCases
 ) : ViewModel() {
-    private val localRankingId = MutableStateFlow(savedStateHandle.get<Long>("id"))
-    private val adminPassword = savedStateHandle.get<String>("adminPassword")
+    private val rankingArgs = MutableStateFlow(
+        savedStateHandle.get<Long>("id")?.let { id ->
+            RankingDestinationArgs(
+                id,
+                savedStateHandle.get<String>("adminPassword")
+            )
+        }
+    )
     private val _uiState = MutableStateFlow(RankingDetailsUiState())
     val uiState: StateFlow<RankingDetailsUiState> = _uiState.asStateFlow()
     private val _remoteSyncUiState = MutableStateFlow(RemoteSyncUiState())
@@ -54,18 +61,18 @@ class RankingDetailsViewModel @Inject constructor(
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val ranking: StateFlow<Ranking?> = localRankingId
+    val ranking: StateFlow<Ranking?> = rankingArgs
         .map { it }
         .distinctUntilChanged()
         .filterNotNull()
-        .flatMapLatest { id ->
-            useCases.getRanking(id)
+        .flatMapLatest { args ->
+            useCases.getRanking(args.id)
                 .catch { e -> e.printStackTrace() }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), Ranking())
 
-    fun setLocalRankingId(id: Long) {
-        localRankingId.value = id
+    fun setLocalRankingArgs(rankingArgs: RankingDestinationArgs) {
+        this.rankingArgs.value = rankingArgs
     }
 
     init {
@@ -145,7 +152,7 @@ class RankingDetailsViewModel @Inject constructor(
             useCases.scheduleRemoteRankingCreation(
                 ranking = CreateRankingDTO(
                     name = ranking.name,
-                    adminPassword = adminPassword.orEmpty(),
+                    adminPassword = rankingArgs.value?.adminPassword.orEmpty(),
                     mobileId = ranking.localId
                 )
             ).collectLatest { workInfo ->

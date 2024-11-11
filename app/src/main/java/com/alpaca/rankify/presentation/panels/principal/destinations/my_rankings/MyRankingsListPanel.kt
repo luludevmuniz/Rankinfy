@@ -7,13 +7,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.alpaca.rankify.navigation.RankingDestination
+import com.alpaca.rankify.navigation.RankingDestinationArgs
 
 @Composable
 fun MyRankingsListPanel(
     modifier: Modifier = Modifier,
     myRankingsViewModel: MyRankingsViewModel = hiltViewModel(),
-    onRankingClicked: (RankingDestination) -> Unit
+    onRankingClicked: (RankingDestinationArgs) -> Unit
 ) {
     val rankings by myRankingsViewModel.savedRankings.collectAsStateWithLifecycle()
     Scaffold(modifier = modifier) { paddingValues ->
@@ -24,7 +24,7 @@ fun MyRankingsListPanel(
                 modifier = Modifier.padding(paddingValues = paddingValues),
                 rankings = rankings,
                 onClick = { id ->
-                    onRankingClicked(RankingDestination(id = id))
+                    onRankingClicked(RankingDestinationArgs(id = id))
                 },
                 onDelete = { id ->
                     myRankingsViewModel.deleteRanking(id)
