@@ -7,7 +7,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.alpaca.rankify.data.local.entities.RankingEntity
 import com.alpaca.rankify.data.local.entities.RankingWithPlayers
-import com.alpaca.rankify.util.Constants.RANKING_TABLE
+import com.alpaca.rankify.util.DatabaseConstants.RANKING_TABLE
 import kotlinx.coroutines.flow.Flow
 
 @Dao

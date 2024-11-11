@@ -3,7 +3,7 @@ package com.alpaca.rankify.di
 import com.alpaca.rankify.data.remote.ApiService
 import com.alpaca.rankify.data.repository.RemoteDataSourceImpl
 import com.alpaca.rankify.domain.repository.RemoteDataSource
-import com.alpaca.rankify.util.Constants.BASE_URL
+import com.alpaca.rankify.util.NetworkConstants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,7 +41,6 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
-
 
     @Provides
     @Singleton

@@ -11,8 +11,8 @@ import com.alpaca.rankify.domain.model.CreateRankingDTO
 import com.alpaca.rankify.domain.model.mappers.asDto
 import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
-import com.alpaca.rankify.util.Constants.WORK_DATA_MESSAGE
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.LOCAL_RANKING_ID
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,7 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        val localRankingId = inputData.getLong(WORK_DATA_LOCAL_RANKING_ID, -1)
+        val localRankingId = inputData.getLong(LOCAL_RANKING_ID, -1)
 
         return withContext(Dispatchers.IO) {
             kotlin.runCatching {
@@ -59,7 +59,7 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
                 )
                 Result.success(
                     workDataOf(
-                        WORK_DATA_MESSAGE to appContext.getString(R.string.ranking_criado_no_servidor_com_sucesso)
+                        MESSAGE to appContext.getString(R.string.ranking_criado_no_servidor_com_sucesso)
                     )
                 )
             }.getOrElse { e ->
@@ -67,7 +67,7 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
                     is SocketTimeoutException -> Result.retry()
                     is NetworkErrorException -> Result.failure(
                         workDataOf(
-                            WORK_DATA_MESSAGE to appContext.getString(
+                            MESSAGE to appContext.getString(
                                 R.string.network_error,
                                 e.localizedMessage
                             )
@@ -76,7 +76,7 @@ class CreateRemoteRankingWorker @AssistedInject constructor(
 
                     else -> Result.failure(
                         workDataOf(
-                            WORK_DATA_MESSAGE to appContext.getString(
+                            MESSAGE to appContext.getString(
                                 R.string.um_erro_inesperado_aconteceu,
                                 e.localizedMessage
                             )

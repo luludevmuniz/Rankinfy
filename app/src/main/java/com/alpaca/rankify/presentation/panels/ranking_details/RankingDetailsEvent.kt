@@ -5,8 +5,8 @@ import com.alpaca.rankify.domain.model.Player
 sealed interface RankingDetailsEvent {
     data class CreatePlayer(val player: Player) : RankingDetailsEvent
     data class DeleteRanking(
-        val name: String,
         val localId: Long,
+        val isAdmin: Boolean,
         val remoteId: Long?
     ) : RankingDetailsEvent
     data object OnRankingDeleted : RankingDetailsEvent

@@ -6,12 +6,13 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.alpaca.rankify.R
 import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.Constants.WORK_DATA_IS_ADMIN
-import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
-import com.alpaca.rankify.util.Constants.WORK_DATA_MESSAGE
-import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.IS_ADMIN
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.LOCAL_RANKING_ID
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.REMOTE_RANKING_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -27,9 +28,9 @@ constructor(
     private val useCases: UseCases,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
-        val remoteId = inputData.getLong(WORK_DATA_REMOTE_RANK_ID, -1)
-        val localId = inputData.getLong(WORK_DATA_LOCAL_RANKING_ID, -1)
-        val isAdmin = inputData.getBoolean(WORK_DATA_IS_ADMIN, false)
+        val remoteId = inputData.getLong(REMOTE_RANKING_ID, -1)
+        val localId = inputData.getLong(LOCAL_RANKING_ID, -1)
+        val isAdmin = inputData.getBoolean(IS_ADMIN, false)
 
         return withContext(Dispatchers.IO) {
             runCatching {
@@ -38,8 +39,7 @@ constructor(
                     password = null,
                 )
                 useCases.updateRankingWithPlayers(
-                    ranking =
-                    remoteRanking
+                    ranking = remoteRanking
                         .asExternalModel(mobileId = localId)
                         .copy(
                             localId = localId,
@@ -48,14 +48,32 @@ constructor(
                 )
                 Result.success(
                     workDataOf(
-                        WORK_DATA_MESSAGE to "Ranking sincronizado com sucesso"
+                        MESSAGE to applicationContext.getString(
+                            R.string.ranking_sincronizado_com_sucesso
+                        )
                     ),
                 )
             }.getOrElse { e ->
                 when (e) {
                     is SocketTimeoutException -> Result.retry()
-                    is NetworkErrorException -> Result.failure(workDataOf("message" to "Network error: ${e.message}"))
-                    else -> Result.failure(workDataOf("message" to "An unexpected error occurred: ${e.message})"))
+
+                    is NetworkErrorException -> Result.failure(
+                        workDataOf(
+                            MESSAGE to applicationContext.getString(
+                                R.string.network_error,
+                                e.localizedMessage
+                            )
+                        )
+                    )
+
+                    else -> Result.failure(
+                        workDataOf(
+                            MESSAGE to applicationContext.getString(
+                                R.string.um_erro_inesperado_aconteceu,
+                                e.localizedMessage
+                            )
+                        )
+                    )
                 }
             }
         }

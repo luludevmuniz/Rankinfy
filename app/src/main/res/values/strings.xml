@@ -31,4 +31,7 @@
     <string name="ranking_criado_sem_senha_de_administrador">Ranking criado sem senha de administrador</string>
     <string name="network_error">Erro na requisição: %1$s</string>
     <string name="ranking_criado_no_servidor_com_sucesso">Ranking criado no servidor com sucesso</string>
+    <string name="ranking_sincronizado_com_sucesso">Ranking sincronizado com sucesso</string>
+    <string name="o_ranking_ainda_nao_salvo_no_servidor">O ranking ainda não salvo no servidor</string>
+    <string name="atualizado_em">Atualizado em %1$s</string>
 </resources>

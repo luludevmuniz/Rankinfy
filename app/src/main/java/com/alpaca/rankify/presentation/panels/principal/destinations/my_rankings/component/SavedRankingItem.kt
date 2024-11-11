@@ -8,7 +8,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.alpaca.rankify.R
 import com.alpaca.rankify.domain.model.Ranking
+import com.alpaca.rankify.util.TestingTags.SavedRankingItem.RANKING_NOT_SAVED_TEXT
+import com.alpaca.rankify.util.TestingTags.SavedRankingItem.RANKING_SAVED_TEXT
+import com.alpaca.rankify.util.TestingTags.SavedRankingItem.SAVED_RANKING_ITEM
 
 @Composable
 fun SavedRankingItem(
@@ -21,7 +27,8 @@ fun SavedRankingItem(
             .combinedClickable(
                 onClick = { onClick(ranking.localId) },
                 onLongClick = { onDelete(ranking.localId) }
-            ),
+            )
+            .testTag(SAVED_RANKING_ITEM),
         headlineContent = {
             Text(
                 text = ranking.name,
@@ -30,10 +37,17 @@ fun SavedRankingItem(
         },
         supportingContent = {
             if (ranking.formattedLastUpdated.isBlank()) {
-                Text(text = "O ranking ainda não salvo no servidor")
+                Text(
+                    modifier = Modifier.testTag(RANKING_NOT_SAVED_TEXT),
+                    text = stringResource(R.string.o_ranking_ainda_nao_salvo_no_servidor)
+                )
             } else {
                 Text(
-                    text = "Atualizado em ${ranking.formattedLastUpdated}",
+                    modifier = Modifier.testTag(RANKING_SAVED_TEXT),
+                    text = stringResource(
+                        R.string.atualizado_em,
+                        ranking.formattedLastUpdated
+                    ),
                 )
             }
         }

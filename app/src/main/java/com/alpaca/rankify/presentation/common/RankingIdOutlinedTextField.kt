@@ -3,10 +3,12 @@ package com.alpaca.rankify.presentation.common
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.RankingNameUiState
 
 @Composable
 fun RankingIdOutlinedTextField(
+    modifier: Modifier = Modifier,
     nameState: () -> RankingNameUiState,
     onRankingIdChange: (String) -> Unit,
     label: @Composable (() -> Unit)? = null,
@@ -15,6 +17,7 @@ fun RankingIdOutlinedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     OutlinedTextField(
+        modifier = modifier,
         value = nameState().value,
         onValueChange = { name ->
             onRankingIdChange(name)

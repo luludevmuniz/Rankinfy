@@ -18,17 +18,17 @@ import com.alpaca.rankify.domain.model.mappers.asEntity
 import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.repository.LocalDataSource
 import com.alpaca.rankify.domain.repository.RemoteDataSource
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_CREATE_REMOTE_PLAYER
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_DELETE_REMOTE_PLAYER
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_UPDATE_REMOTE_PLAYER
-import com.alpaca.rankify.util.Constants.WORK_DATA_IS_ADMIN
-import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
-import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_ID
-import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_NAME
-import com.alpaca.rankify.util.Constants.WORK_DATA_PLAYER_SCORE
-import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
-import com.alpaca.rankify.util.Constants.WORK_MANAGER_DEFAULT_CONSTRAINTS
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.CREATE_REMOTE_PLAYER
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.DELETE_REMOTE_PLAYER
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.SYNC_REMOTE_RANKING
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.UPDATE_REMOTE_PLAYER
+import com.alpaca.rankify.util.WorkManagerConstants.WORK_MANAGER_DEFAULT_CONSTRAINTS
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.IS_ADMIN
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.LOCAL_RANKING_ID
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.PLAYER_ID
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.PLAYER_NAME
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.PLAYER_SCORE
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.REMOTE_RANKING_ID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -112,12 +112,12 @@ constructor(
     ): Flow<WorkInfo?> {
         val data =
             workDataOf(
-                WORK_DATA_PLAYER_ID to playerId,
-                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId
+                PLAYER_ID to playerId,
+                REMOTE_RANKING_ID to ranking.remoteId
             )
 
         val createPlayerWorkerName =
-            "${UNIQUE_WORK_NAME_CREATE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
+            "${CREATE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
 
         val createRemotePlayerRequest =
             OneTimeWorkRequestBuilder<CreateRemotePlayerWorker>()
@@ -125,14 +125,14 @@ constructor(
                 .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
 
-        val syncWorkerTag = "$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}"
+        val syncWorkerTag = "$SYNC_REMOTE_RANKING${ranking.remoteId}"
 
         if (workManager.getWorkInfosByTag(syncWorkerTag).get().isNotEmpty()) {
             workManager.cancelAllWorkByTag(syncWorkerTag)
             val syncWorkerData = workDataOf(
-                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
-                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
-                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+                LOCAL_RANKING_ID to ranking.localId,
+                REMOTE_RANKING_ID to ranking.remoteId,
+                IS_ADMIN to ranking.isAdmin,
             )
             val syncRequest =
                 OneTimeWorkRequestBuilder<SyncRankingWorker>()
@@ -162,9 +162,9 @@ constructor(
         playerId: Long,
         ranking: Ranking
     ): Flow<WorkInfo?> {
-        val data = workDataOf(WORK_DATA_PLAYER_ID to playerId)
+        val data = workDataOf(PLAYER_ID to playerId)
 
-        val workName = "${UNIQUE_WORK_NAME_DELETE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
+        val workName = "${DELETE_REMOTE_PLAYER}_" + "PLAYER_ID_$playerId"
 
         val deleteRemotePlayerRequest =
             OneTimeWorkRequestBuilder<DeleteRemotePlayerWorker>()
@@ -172,16 +172,16 @@ constructor(
                 .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
 
-        val syncWorkerTag = "$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}"
+        val syncWorkerTag = "$SYNC_REMOTE_RANKING${ranking.remoteId}"
 
         if (workManager.getWorkInfosByTag(syncWorkerTag).get().isNotEmpty()) {
 
             workManager.cancelAllWorkByTag(syncWorkerTag)
 
             val syncWorkerData = workDataOf(
-                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
-                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
-                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+                LOCAL_RANKING_ID to ranking.localId,
+                REMOTE_RANKING_ID to ranking.remoteId,
+                IS_ADMIN to ranking.isAdmin,
             )
             val syncRequest =
                 OneTimeWorkRequestBuilder<SyncRankingWorker>()
@@ -212,13 +212,13 @@ constructor(
         ranking: Ranking
     ): Flow<WorkInfo?> {
         val data = workDataOf(
-            WORK_DATA_PLAYER_NAME to player.name,
-            WORK_DATA_PLAYER_SCORE to player.score,
-            WORK_DATA_PLAYER_ID to player.id
+            PLAYER_NAME to player.name,
+            PLAYER_SCORE to player.score,
+            PLAYER_ID to player.id
         )
 
         val workName =
-            "${UNIQUE_WORK_NAME_UPDATE_REMOTE_PLAYER}_" +
+            "${UPDATE_REMOTE_PLAYER}_" +
                     "PLAYER_ID:${player.id}_" +
                     "PLAYER_NAME:${player.name}_" +
                     "PLAYER_SCORE:${player.score}"
@@ -229,15 +229,15 @@ constructor(
                 .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
                 .build()
 
-        val syncWorkerTag = "$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}"
+        val syncWorkerTag = "$SYNC_REMOTE_RANKING${ranking.remoteId}"
 
         if (workManager.getWorkInfosByTag(syncWorkerTag).get().isNotEmpty()) {
             workManager.cancelAllWorkByTag(syncWorkerTag)
 
             val syncWorkerData = workDataOf(
-                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
-                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
-                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+                LOCAL_RANKING_ID to ranking.localId,
+                REMOTE_RANKING_ID to ranking.remoteId,
+                IS_ADMIN to ranking.isAdmin,
             )
             val syncRequest =
                 OneTimeWorkRequestBuilder<SyncRankingWorker>()

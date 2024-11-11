@@ -11,8 +11,8 @@ import com.alpaca.rankify.R
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
-import com.alpaca.rankify.util.Constants.WORK_DATA_MESSAGE
+import com.alpaca.rankify.util.WorkManagerConstants
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
 import io.mockk.Ordering
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -91,13 +91,13 @@ class CreateRemoteRankingWorkerTest {
         coEvery { useCases.updateRankingWithPlayers(any()) } returns Unit
 
         val worker = TestListenableWorkerBuilder<CreateRemoteRankingWorker>(context)
-            .setInputData(workDataOf(WORK_DATA_LOCAL_RANKING_ID to LOCAL_RANKING_ID))
+            .setInputData(workDataOf(WorkManagerConstants.WorkData.LOCAL_RANKING_ID to LOCAL_RANKING_ID))
             .setWorkerFactory(TestWorkerFactory(useCases))
             .build()
 
         val expectedWorkData =
             workDataOf(
-                WORK_DATA_MESSAGE to
+                MESSAGE to
                         context.getString(R.string.ranking_criado_no_servidor_com_sucesso)
             )
 
@@ -116,7 +116,7 @@ class CreateRemoteRankingWorkerTest {
      * indicating that the ranking does not exist, the worker should:
      *
      * 1. Return a [ListenableWorker.Result.failure] status.
-     * 2. Include an error message in the output [androidx.work.Data] using the keys [WORK_DATA_MESSAGE].
+     * 2. Include an error message in the output [androidx.work.Data] using the keys [MESSAGE].
      *    The message should indicate that an unexpected error occurred, specifically mentioning that
      *    the ranking does not exist.
      *
@@ -141,7 +141,7 @@ class CreateRemoteRankingWorkerTest {
 
         val expectedWorkData =
             workDataOf(
-                WORK_DATA_MESSAGE to
+                MESSAGE to
                         context.getString(
                             R.string.um_erro_inesperado_aconteceu,
                             context.getString(R.string.oopss_parace_que_o_ranking_nao_existe_mais)
@@ -187,13 +187,13 @@ class CreateRemoteRankingWorkerTest {
         coEvery { useCases.getRanking(id = LOCAL_RANKING_ID) } returns flowOf(mockRanking)
 
         val worker = TestListenableWorkerBuilder<CreateRemoteRankingWorker>(context)
-            .setInputData(workDataOf(WORK_DATA_LOCAL_RANKING_ID to LOCAL_RANKING_ID))
+            .setInputData(workDataOf(WorkManagerConstants.WorkData.LOCAL_RANKING_ID to LOCAL_RANKING_ID))
             .setWorkerFactory(TestWorkerFactory(useCases))
             .build()
 
         val expectedWorkData =
             workDataOf(
-                WORK_DATA_MESSAGE to
+                MESSAGE to
                         context.getString(
                             R.string.um_erro_inesperado_aconteceu,
                             context.getString(R.string.ranking_criado_sem_senha_de_administrador)
@@ -234,19 +234,19 @@ class CreateRemoteRankingWorkerTest {
             name = RANKING_NAME,
             adminPassword = ADMIN_PASSWORD
         )
-        val networkException = NetworkErrorException("Error 404")
+        val networkException = NetworkErrorException("Network error")
 
         coEvery { useCases.getRanking(id = LOCAL_RANKING_ID) } returns flowOf(mockRanking)
         coEvery { useCases.createRemoteRanking(any()) } throws networkException
 
         val worker = TestListenableWorkerBuilder<CreateRemoteRankingWorker>(context)
-            .setInputData(workDataOf(WORK_DATA_LOCAL_RANKING_ID to LOCAL_RANKING_ID))
+            .setInputData(workDataOf(WorkManagerConstants.WorkData.LOCAL_RANKING_ID to LOCAL_RANKING_ID))
             .setWorkerFactory(TestWorkerFactory(useCases))
             .build()
 
         val expectedWorkData =
             workDataOf(
-                WORK_DATA_MESSAGE to
+                MESSAGE to
                         context.getString(
                             R.string.network_error,
                             networkException.localizedMessage
@@ -292,7 +292,7 @@ class CreateRemoteRankingWorkerTest {
         coEvery { useCases.createRemoteRanking(any()) } throws SocketTimeoutException()
 
         val worker = TestListenableWorkerBuilder<CreateRemoteRankingWorker>(context)
-            .setInputData(workDataOf(WORK_DATA_LOCAL_RANKING_ID to LOCAL_RANKING_ID))
+            .setInputData(workDataOf(WorkManagerConstants.WorkData.LOCAL_RANKING_ID to LOCAL_RANKING_ID))
             .setWorkerFactory(TestWorkerFactory(useCases))
             .build()
 
@@ -354,14 +354,14 @@ class CreateRemoteRankingWorkerTest {
         coEvery { useCases.updateRankingWithPlayers(any()) } returns Unit
 
         val worker = TestListenableWorkerBuilder<CreateRemoteRankingWorker>(context)
-            .setInputData(workDataOf(WORK_DATA_LOCAL_RANKING_ID to LOCAL_RANKING_ID))
+            .setInputData(workDataOf(WorkManagerConstants.WorkData.LOCAL_RANKING_ID to LOCAL_RANKING_ID))
             .setWorkerFactory(TestWorkerFactory(useCases))
             .build()
 
 
         val expectedWorkData =
             workDataOf(
-                WORK_DATA_MESSAGE to
+                MESSAGE to
                         context.getString(R.string.ranking_criado_no_servidor_com_sucesso)
             )
 

@@ -9,6 +9,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -17,11 +18,13 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 
 @Composable
 fun PasswordOutlinedTextField(
+    modifier: Modifier = Modifier,
     passwordState: () -> RankingPasswordUiState,
     onPasswordChange: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
 ) {
     OutlinedTextField(
+        modifier = modifier,
         value = passwordState().value,
         onValueChange = onPasswordChange,
         label = {

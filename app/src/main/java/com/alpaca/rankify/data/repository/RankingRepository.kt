@@ -18,15 +18,15 @@ import com.alpaca.rankify.domain.model.mappers.asEntity
 import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.repository.LocalDataSource
 import com.alpaca.rankify.domain.repository.RemoteDataSource
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_CREATE_REMOTE_RANKING
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_DELETE_REMOTE_RANKING
-import com.alpaca.rankify.util.Constants.UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING
-import com.alpaca.rankify.util.Constants.WORK_DATA_ADMIN_PASSWORD
-import com.alpaca.rankify.util.Constants.WORK_DATA_IS_ADMIN
-import com.alpaca.rankify.util.Constants.WORK_DATA_LOCAL_RANKING_ID
-import com.alpaca.rankify.util.Constants.WORK_DATA_REMOTE_RANK_ID
-import com.alpaca.rankify.util.Constants.WORK_MANAGER_DEFAULT_CONSTRAINTS
 import com.alpaca.rankify.util.RequestState
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.CREATE_REMOTE_RANKING
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.DELETE_REMOTE_RANKING
+import com.alpaca.rankify.util.WorkManagerConstants.UniqueWorkName.SYNC_REMOTE_RANKING
+import com.alpaca.rankify.util.WorkManagerConstants.WORK_MANAGER_DEFAULT_CONSTRAINTS
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.ADMIN_PASSWORD
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.IS_ADMIN
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.LOCAL_RANKING_ID
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.REMOTE_RANKING_ID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -67,7 +67,7 @@ class RankingRepository
         local.updateRankingWithPlayers(rankingWithPlayers = rankingWithPlayers)
     }
 
-    private suspend fun saveRankingWithPlayers(ranking: Ranking): Long {
+    suspend fun saveRankingWithPlayers(ranking: Ranking): Long {
         val rankingWithPlayers = RankingWithPlayers(
             ranking = ranking.asEntity(),
             players = ranking.players.map { it.asEntity() }
@@ -111,16 +111,30 @@ class RankingRepository
 
     suspend fun deleteRemoteRanking(id: Long) = remote.deleteRanking(id = id)
 
-    suspend fun searchRanking(id: Long, adminPassword: String?): RequestState<Long> = try {
-        RequestState.Success(fetchAndSaveRanking(id, adminPassword))
+    suspend fun searchRanking(
+        id: Long,
+        adminPassword: String?
+    ): RequestState<Long> = try {
+        RequestState.Success(
+            fetchAndSaveRanking(
+                id = id,
+                adminPassword = adminPassword
+            )
+        )
     } catch (e: NetworkErrorException) {
-        RequestState.Error("Network error: ${e.message}")
+        RequestState.Error("Network error: ${e.localizedMessage}")
     } catch (e: Exception) {
-        RequestState.Error("An error occurred: ${e.message}")
+        RequestState.Error("An error occurred: ${e.localizedMessage}")
     }
 
-    private suspend fun fetchAndSaveRanking(id: Long, adminPassword: String?): Long {
-        val ranking = remote.getRanking(id = id, password = adminPassword)
+    private suspend fun fetchAndSaveRanking(
+        id: Long,
+        adminPassword: String?
+    ): Long {
+        val ranking = remote.getRanking(
+            id = id,
+            password = adminPassword
+        )
         val existingRanking = getRankingWithRemoteId(ranking.apiId).firstOrNull()
         return existingRanking?.localId
             ?: saveRankingWithPlayers(ranking = ranking.asExternalModel(mobileId = 0))
@@ -129,19 +143,19 @@ class RankingRepository
     fun scheduleRemoteRankingCreation(ranking: CreateRankingDTO): Flow<WorkInfo?> {
         val data =
             workDataOf(
-                WORK_DATA_LOCAL_RANKING_ID to ranking.mobileId,
-                WORK_DATA_ADMIN_PASSWORD to ranking.adminPassword,
+                LOCAL_RANKING_ID to ranking.mobileId,
+                ADMIN_PASSWORD to ranking.adminPassword,
             )
 
         val createRemoteRankingRequest =
             OneTimeWorkRequestBuilder<CreateRemoteRankingWorker>()
                 .setInputData(data)
                 .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
-                .addTag("$UNIQUE_WORK_NAME_CREATE_REMOTE_RANKING${ranking.mobileId}")
+                .addTag("$CREATE_REMOTE_RANKING${ranking.mobileId}")
                 .build()
 
         val workName =
-            "${UNIQUE_WORK_NAME_CREATE_REMOTE_RANKING}_" +
+            "${CREATE_REMOTE_RANKING}_" +
                     "NAME:${ranking.name}_LOCALID:${ranking.mobileId}"
 
         workManager.enqueueUniqueWork(
@@ -156,20 +170,20 @@ class RankingRepository
     fun scheduleSyncRanking(ranking: Ranking): Flow<WorkInfo?> {
         val data =
             workDataOf(
-                WORK_DATA_LOCAL_RANKING_ID to ranking.localId,
-                WORK_DATA_REMOTE_RANK_ID to ranking.remoteId,
-                WORK_DATA_IS_ADMIN to ranking.isAdmin,
+                LOCAL_RANKING_ID to ranking.localId,
+                REMOTE_RANKING_ID to ranking.remoteId,
+                IS_ADMIN to ranking.isAdmin,
             )
 
         val syncRequest =
             OneTimeWorkRequestBuilder<SyncRankingWorker>()
                 .setInputData(data)
                 .setConstraints(WORK_MANAGER_DEFAULT_CONSTRAINTS)
-                .addTag("$UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING${ranking.remoteId}")
+                .addTag("$SYNC_REMOTE_RANKING${ranking.remoteId}")
                 .build()
 
         val workName =
-            "${UNIQUE_WORK_NAME_SYNC_REMOTE_RANKING}_" +
+            "${SYNC_REMOTE_RANKING}_" +
                     "NAME:${ranking.name}_LOCALID:${ranking.localId}_REMOTEID:${ranking.remoteId}"
 
         workManager.enqueueUniqueWork(
@@ -182,9 +196,9 @@ class RankingRepository
     }
 
     fun scheduleRemoteRankDeletion(rankId: Long): Flow<WorkInfo?> {
-        val data = workDataOf(WORK_DATA_REMOTE_RANK_ID to rankId)
+        val data = workDataOf(REMOTE_RANKING_ID to rankId)
 
-        val workName = "${UNIQUE_WORK_NAME_DELETE_REMOTE_RANKING}_" + "RANK_ID_$rankId"
+        val workName = "${DELETE_REMOTE_RANKING}_" + "RANK_ID_$rankId"
 
         val deleteRemoteRankRequest =
             OneTimeWorkRequestBuilder<DeleteRemoteRankingWorker>()

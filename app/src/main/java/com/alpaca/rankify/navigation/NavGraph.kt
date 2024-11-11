@@ -1,5 +1,7 @@
 package com.alpaca.rankify.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -7,7 +9,7 @@ import androidx.navigation.compose.composable
 import com.alpaca.rankify.navigation.Panel.Principal
 import com.alpaca.rankify.navigation.Panel.RankingDetails
 import com.alpaca.rankify.presentation.panels.principal.PrincipalScreen
-import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsScreen
+import com.alpaca.rankify.presentation.panels.principal.destinations.my_rankings.MyRankingsListDetail
 
 @Composable
 fun SetupNavGraph(
@@ -17,7 +19,20 @@ fun SetupNavGraph(
         navController = navController,
         startDestination = Principal
     ) {
-        composable<Principal> {
+        composable<Principal>(
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(700)
+                )
+            },
+            exitTransition = {
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(700)
+                )
+            }
+        ) {
             PrincipalScreen(
                 navigateToRanking = { id, adminPassword ->
                     navController.navigate(
@@ -29,11 +44,11 @@ fun SetupNavGraph(
                 }
             )
         }
-        composable<RankingDetails> {
-            RankingDetailsScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                }
+        composable<RankingDetails> { backStackEntry ->
+            val rankingId = backStackEntry.arguments?.getLong("id")
+            val adminPassword = backStackEntry.arguments?.getString("adminPassword")
+            MyRankingsListDetail(
+                rankingId = rankingId
             )
         }
     }

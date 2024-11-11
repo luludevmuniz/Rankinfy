@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,6 +44,10 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.search
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingEvent.UpdateSearchedId
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
 import com.alpaca.rankify.util.RequestState
+import com.alpaca.rankify.util.TestingTags.SearchRanking.IS_ADMIN_CHECKBOX
+import com.alpaca.rankify.util.TestingTags.SearchRanking.RANKING_ADMIN_PASSWORD_TEXT_FIELD
+import com.alpaca.rankify.util.TestingTags.SearchRanking.RANKING_ID_TEXT_FIELD
+import com.alpaca.rankify.util.TestingTags.SearchRanking.SEARCH_RANKING_BUTTON
 
 @Composable
 fun SearchRankingPanel(
@@ -81,7 +88,9 @@ fun SearchRankingPanel(
         }
     }
     SearchRankingContent(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(),
         searchRankingUiState = { searchRankingUiState },
         idUiState = { rankingIdUiState },
         passwordState = { rankingAdminPasswordUiState },
@@ -160,6 +169,7 @@ private fun RankingIdTextField(
     searchRankingUiState: () -> SearchRankingUiState
 ) {
     RankingIdOutlinedTextField(
+        modifier = Modifier.testTag(RANKING_ID_TEXT_FIELD),
         nameState = idUiState,
         onRankingIdChange = { id ->
             onRankingIdChange(id)
@@ -192,6 +202,7 @@ private fun ColumnScope.AdminPasswordTextField(
     Spacer(modifier = Modifier.height(MEDIUM_PADDING))
     AnimatedVisibility(visible = searchRankingUiState().isAdministrator) {
         PasswordOutlinedTextField(
+            modifier = Modifier.testTag(RANKING_ADMIN_PASSWORD_TEXT_FIELD),
             passwordState = passwordState,
             onPasswordChange = { password ->
                 onRankingPasswordChange(password)
@@ -213,6 +224,7 @@ private fun AdminCheckBox(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
+            modifier = Modifier.testTag(IS_ADMIN_CHECKBOX),
             checked = searchRankingUiState().isAdministrator,
             onCheckedChange = {
                 onIsAdministratorChange()
@@ -231,7 +243,9 @@ private fun ColumnScope.SearchRankingButton(
     searchRankingUiState: () -> SearchRankingUiState
 ) {
     FilledTonalButton(
-        modifier = Modifier.Companion.align(Alignment.End),
+        modifier = Modifier
+            .align(Alignment.End)
+            .testTag(SEARCH_RANKING_BUTTON),
         onClick = onSearchRankingClick,
         enabled = searchRankingUiState().isLoading.not()
     ) {

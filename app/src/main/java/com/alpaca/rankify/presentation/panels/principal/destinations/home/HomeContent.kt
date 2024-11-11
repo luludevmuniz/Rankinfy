@@ -15,10 +15,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.alpaca.rankify.navigation.TabsDestinations
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingPanel
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.search_ranking.SearchRankingPanel
+import com.alpaca.rankify.util.TestingTags.Ranking.CREATE_RANKING_PANEL
+import com.alpaca.rankify.util.TestingTags.Ranking.SEARCH_RANKING_PANEL
 
 @Composable
 @NonRestartableComposable
@@ -42,6 +45,7 @@ fun HomeContent(
             tabs = {
                 tabs.forEachIndexed { index, tab ->
                     Tab(
+                        modifier = Modifier.testTag(tab.testTag),
                         text = {
                             Text(stringResource(tab.label))
                         },
@@ -59,10 +63,12 @@ fun HomeContent(
         ) {
             when (tabs[tabIndex.intValue]) {
                 TabsDestinations.CREATE_RANKING -> CreateRankingPanel(
+                    modifier = modifier.testTag(CREATE_RANKING_PANEL),
                     navigateToRanking = navigateToRanking,
                     showSnackBar = showSnackBar
                 )
                 TabsDestinations.SEARCH_RANKING -> SearchRankingPanel(
+                    modifier = modifier.testTag(SEARCH_RANKING_PANEL),
                     navigateToRanking = navigateToRanking,
                     showSnackBar = showSnackBar
                 )

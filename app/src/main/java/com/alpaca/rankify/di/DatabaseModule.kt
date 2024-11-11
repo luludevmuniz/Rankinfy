@@ -5,7 +5,7 @@ import androidx.room.Room
 import com.alpaca.rankify.data.local.Database
 import com.alpaca.rankify.data.repository.LocalDataSourceImpl
 import com.alpaca.rankify.domain.repository.LocalDataSource
-import com.alpaca.rankify.util.Constants.DATABASE_NAME
+import com.alpaca.rankify.util.DatabaseConstants.DATABASE_NAME
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

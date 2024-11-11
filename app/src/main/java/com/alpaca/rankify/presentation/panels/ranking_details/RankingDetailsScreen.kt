@@ -58,6 +58,7 @@ import kotlinx.coroutines.launch
 @NonRestartableComposable
 @Composable
 fun RankingDetailsScreen(
+    modifier: Modifier = Modifier,
     rankingDetailsViewModel: RankingDetailsViewModel = hiltViewModel(),
     rankingId: Long? = null,
     onBackClick: () -> Unit
@@ -82,6 +83,7 @@ fun RankingDetailsScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
@@ -181,9 +183,9 @@ fun RankingDetailsScreen(
                         ranking?.let {
                             rankingDetailsViewModel.onEvent(
                                 DeleteRanking(
-                                    name = it.name,
                                     localId = it.localId,
-                                    remoteId = it.remoteId
+                                    remoteId = it.remoteId,
+                                    isAdmin = it.isAdmin
                                 )
                             )
                         }

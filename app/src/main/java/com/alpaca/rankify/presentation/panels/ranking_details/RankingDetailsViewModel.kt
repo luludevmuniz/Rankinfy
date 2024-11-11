@@ -15,7 +15,7 @@ import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.use_cases.UseCases
 import com.alpaca.rankify.presentation.panels.ranking_details.RankingDetailsEvent.OnRankingDeleted
-import com.alpaca.rankify.util.Constants.WORK_DATA_MESSAGE
+import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -91,6 +91,7 @@ class RankingDetailsViewModel @Inject constructor(
             is RankingDetailsEvent.CreatePlayer -> createPlayer(player = event.player)
             is RankingDetailsEvent.DeleteRanking -> deleteRanking(
                 localId = event.localId,
+                isAdmin = event.isAdmin,
                 remoteId = event.remoteId
             )
 
@@ -175,7 +176,7 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                message = workInfo.outputData.getString(MESSAGE)
                                     .orEmpty(),
                                 attempts = workInfo.runAttemptCount,
                                 stopReason = "Succeeded"
@@ -188,7 +189,7 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                message = workInfo.outputData.getString(MESSAGE)
                                     .orEmpty(),
                                 attempts = workInfo.runAttemptCount,
                                 stopReason = "Failed"
@@ -201,7 +202,7 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                message = workInfo.outputData.getString(MESSAGE)
                                     .orEmpty(),
                                 attempts = workInfo.runAttemptCount,
                                 stopReason = "Blocked"
@@ -213,7 +214,7 @@ class RankingDetailsViewModel @Inject constructor(
                         _remoteSyncUiState.update { state ->
                             state.copy(
                                 isSyncing = false,
-                                message = workInfo.outputData.getString(WORK_DATA_MESSAGE)
+                                message = workInfo.outputData.getString(MESSAGE)
                                     .orEmpty(),
                                 attempts = workInfo.runAttemptCount,
                                 stopReason = "Cancelled"
@@ -230,15 +231,18 @@ class RankingDetailsViewModel @Inject constructor(
 
     private fun deleteRanking(
         localId: Long,
-        remoteId: Long?
+        remoteId: Long?,
+        isAdmin: Boolean
     ) {
         hideDeleteRankingDialog()
         viewModelScope.launch(Dispatchers.IO) {
             val success = async {
                 useCases.deleteRanking(id = localId) != 0
             }.await()
-            if (success && remoteId != null) {
-                useCases.scheduleRemoteRankingDeletion(rankId = remoteId)
+            remoteId?.let {
+                if (success && isAdmin) {
+                    useCases.scheduleRemoteRankingDeletion(rankId = remoteId)
+                }
             }
             closeRankingScreen()
         }

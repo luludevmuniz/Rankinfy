@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,9 +30,13 @@ import com.alpaca.rankify.presentation.panels.principal.destinations.home.create
 import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.CreateRankingEvent.UpdateRankingPassword
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
 import com.alpaca.rankify.util.RequestState
+import com.alpaca.rankify.util.TestingTags.CreateRanking.CREATE_RANKING_BUTTON
+import com.alpaca.rankify.util.TestingTags.CreateRanking.RANKING_NAME_TEXT_FIELD
+import com.alpaca.rankify.util.TestingTags.CreateRanking.RANKING_PASSWORD_TEXT_FIELD
 
 @Composable
 fun CreateRankingPanel(
+    modifier: Modifier = Modifier,
     viewModel: CreateRankingViewModel = hiltViewModel(),
     navigateToRanking: (Long, String?) -> Unit,
     showSnackBar: (String) -> Unit
@@ -48,16 +53,21 @@ fun CreateRankingPanel(
                     rankingPasswordUiState.value
                 )
             }
+
             is RequestState.Error -> {
                 showSnackBar(rankingRequestState.getErrorMessage())
                 viewModel.onEvent(CreateRankingEvent.RequestIdle)
             }
+
             RequestState.Loading -> Unit
             RequestState.Idle -> Unit
         }
     }
 
     CreateRankingContent(
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(),
         nameState = { rankingNameUiState },
         passwordState = { rankingPasswordUiState },
         onRankingNameChange = remember {
@@ -96,9 +106,7 @@ fun CreateRankingContent(
     isLoading: () -> Boolean = { false }
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .wrapContentSize(),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(space = MEDIUM_PADDING)
     ) {
@@ -108,6 +116,7 @@ fun CreateRankingContent(
             color = MaterialTheme.colorScheme.onSurface
         )
         RankingIdOutlinedTextField(
+            modifier = Modifier.testTag(RANKING_NAME_TEXT_FIELD),
             nameState = nameState,
             onRankingIdChange = { name ->
                 onRankingNameChange(name)
@@ -118,6 +127,7 @@ fun CreateRankingContent(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
         PasswordOutlinedTextField(
+            modifier = Modifier.testTag(RANKING_PASSWORD_TEXT_FIELD),
             passwordState = passwordState,
             onPasswordChange = { password ->
                 onRankingPasswordChange(password)
@@ -127,7 +137,9 @@ fun CreateRankingContent(
             },
         )
         CreateRankingButton(
-            modifier = Modifier.align(Alignment.End),
+            modifier = Modifier
+                .align(Alignment.End)
+                .testTag(CREATE_RANKING_BUTTON),
             onCreateClick = {
                 onCreateClick()
             },
