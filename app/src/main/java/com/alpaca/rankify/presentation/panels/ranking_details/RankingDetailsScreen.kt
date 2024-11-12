@@ -89,7 +89,7 @@ fun RankingDetailsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = ranking?.name.orEmpty())
+                    Text(text = "${ranking?.name.orEmpty()}#${ranking?.remoteId}")
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {

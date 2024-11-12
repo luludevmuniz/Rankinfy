@@ -21,7 +21,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun MyRankingsListDetail(
     modifier: Modifier = Modifier,
-    rankingArgs: RankingDestinationArgs? = null
+    rankingArgs: RankingDestinationArgs? = null,
+    onBackClick: () -> Unit = {}
 ) {
     val inititalPane =
         if (rankingArgs == null) ListDetailPaneScaffoldRole.List else ListDetailPaneScaffoldRole.Detail
@@ -68,7 +69,11 @@ fun MyRankingsListDetail(
                     ),
                     onBackClick = {
                         scope.launch {
-                            navigator.navigateBack()
+                            if (navigator.canNavigateBack()) {
+                                navigator.navigateBack()
+                            } else {
+                                onBackClick()
+                            }
                         }
                     }
                 )

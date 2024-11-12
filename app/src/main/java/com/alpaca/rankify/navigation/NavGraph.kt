@@ -51,7 +51,10 @@ fun SetupNavGraph(
                 rankingArgs = RankingDestinationArgs(
                     id = rankingId ?: -1,
                     adminPassword = adminPassword
-                )
+                ),
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
     }
