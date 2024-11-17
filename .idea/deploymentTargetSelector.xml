@@ -13,19 +13,19 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="homePanel_callsNavigateToRanking_whenCreateRankingButtonClicked()">
+      <SelectionState runConfigName="createRankingButton_showsCreateRankingText_whenLoadingIsFalse()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="HomePanelTest">
+      <SelectionState runConfigName="createRankingButton_showsLoadingIndicator_whenLoadingIsTrue()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="homePanel_showSnackbar_onAction()">
+      <SelectionState runConfigName="CreateRankingButtonTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="RankingIdOutlinedTextFieldTest">
+      <SelectionState runConfigName="createRankingButton_isNotEnabled_whenLoadingIsTrue()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="rankingIdOutlinedTextField_rendersCorrectly()">
+      <SelectionState runConfigName="createRankingButton_callsOnCreateClick_whenClickedAndNotLoading()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

@@ -1,11 +1,8 @@
 package com.alpaca.rankify.presentation.panel.principal.destinations.home.create_ranking
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,8 +14,8 @@ import androidx.compose.ui.text.input.ImeAction
 import com.alpaca.rankify.R
 import com.alpaca.rankify.presentation.common.PasswordOutlinedTextField
 import com.alpaca.rankify.presentation.common.RankingIdOutlinedTextField
+import com.alpaca.rankify.presentation.panel.principal.destinations.home.create_ranking.component.CreateRankingButton
 import com.alpaca.rankify.ui.theme.MEDIUM_PADDING
-import com.alpaca.rankify.util.constant.TestingTagsConstants.CreateRanking.CREATE_RANKING_BUTTON
 import com.alpaca.rankify.util.constant.TestingTagsConstants.CreateRanking.RANKING_NAME_TEXT_FIELD
 import com.alpaca.rankify.util.constant.TestingTagsConstants.CreateRanking.RANKING_PASSWORD_TEXT_FIELD
 
@@ -66,33 +63,11 @@ fun CreateRankingContent(
         )
         CreateRankingButton(
             modifier = Modifier
-                .align(Alignment.End)
-                .testTag(CREATE_RANKING_BUTTON),
+                .align(Alignment.End),
             onCreateClick = {
                 onCreateClick()
             },
             isLoading = isLoading
         )
-    }
-}
-
-@Composable
-private fun CreateRankingButton(
-    modifier: Modifier = Modifier,
-    onCreateClick: () -> Unit,
-    isLoading: () -> Boolean
-) {
-    FilledTonalButton(
-        modifier = modifier.animateContentSize(),
-        onClick = {
-            onCreateClick()
-        },
-        enabled = isLoading().not()
-    ) {
-        if (isLoading()) {
-            CircularProgressIndicator()
-        } else {
-            Text(text = stringResource(R.string.criar_ranking))
-        }
     }
 }
