@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import com.alpaca.rankify.data.local.entities.PlayerEntity
-import com.alpaca.rankify.util.DatabaseConstants.PLAYER_TABLE
+import com.alpaca.rankify.util.constant.DatabaseConstants.PLAYER_TABLE
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -10,8 +10,8 @@ import androidx.work.workDataOf
 import com.alpaca.rankify.R
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.WorkManagerConstants
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
+import com.alpaca.rankify.util.constant.WorkManagerConstants
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.MESSAGE
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking

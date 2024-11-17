@@ -1,20 +1,17 @@
 package com.alpaca.rankify.presentation.common
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.alpaca.rankify.R
-import com.alpaca.rankify.presentation.panels.principal.destinations.home.create_ranking.RankingPasswordUiState
+import com.alpaca.rankify.presentation.panel.principal.destinations.home.create_ranking.RankingPasswordUiState
 
 @Composable
 fun PasswordOutlinedTextField(
@@ -35,7 +32,7 @@ fun PasswordOutlinedTextField(
         else PasswordVisualTransformation(),
         leadingIcon = {
             Icon(
-                imageVector = Icons.Default.Lock,
+                painter = painterResource(R.drawable.ic_lock),
                 contentDescription = null
             )
         },
@@ -44,8 +41,9 @@ fun PasswordOutlinedTextField(
                 onClick = onTogglePasswordVisibility
             ) {
                 Icon(
-                    imageVector = if (passwordState().isVisible) Icons.Default.Visibility
-                    else Icons.Default.VisibilityOff,
+                    painter =
+                        if (passwordState().isVisible) painterResource(R.drawable.ic_visibility)
+                        else painterResource(R.drawable.ic_visibility_off),
                     contentDescription = stringResource(R.string.change_password_visibility)
                 )
             }

@@ -6,9 +6,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.PLAYER_ID
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.PLAYER_NAME
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.PLAYER_SCORE
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.PLAYER_ID
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.PLAYER_NAME
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.PLAYER_SCORE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -32,7 +32,7 @@ constructor(
                 )
             )
             Result.success()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Result.retry()
         }
     }

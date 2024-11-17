@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.alpaca.rankify.util.DatabaseConstants.PLAYER_TABLE
+import com.alpaca.rankify.util.constant.DatabaseConstants.PLAYER_TABLE
 
 @Entity(
     tableName = PLAYER_TABLE,

@@ -11,8 +11,8 @@ import com.alpaca.rankify.domain.model.CreateRankingDTO
 import com.alpaca.rankify.domain.model.mappers.asDto
 import com.alpaca.rankify.domain.model.mappers.asExternalModel
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.LOCAL_RANKING_ID
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.LOCAL_RANKING_ID
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.MESSAGE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

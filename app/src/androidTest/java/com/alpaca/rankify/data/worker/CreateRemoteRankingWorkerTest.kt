@@ -11,8 +11,8 @@ import com.alpaca.rankify.R
 import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.Ranking
 import com.alpaca.rankify.domain.use_cases.UseCases
-import com.alpaca.rankify.util.WorkManagerConstants
-import com.alpaca.rankify.util.WorkManagerConstants.WorkData.MESSAGE
+import com.alpaca.rankify.util.constant.WorkManagerConstants
+import com.alpaca.rankify.util.constant.WorkManagerConstants.WorkData.MESSAGE
 import io.mockk.Ordering
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -97,8 +97,7 @@ class CreateRemoteRankingWorkerTest {
 
         val expectedWorkData =
             workDataOf(
-                MESSAGE to
-                        context.getString(R.string.ranking_criado_no_servidor_com_sucesso)
+                MESSAGE to context.getString(R.string.ranking_criado_no_servidor_com_sucesso)
             )
 
         // Act
@@ -141,8 +140,7 @@ class CreateRemoteRankingWorkerTest {
 
         val expectedWorkData =
             workDataOf(
-                MESSAGE to
-                        context.getString(
+                MESSAGE to context.getString(
                             R.string.um_erro_inesperado_aconteceu,
                             context.getString(R.string.oopss_parace_que_o_ranking_nao_existe_mais)
                         )
@@ -193,8 +191,7 @@ class CreateRemoteRankingWorkerTest {
 
         val expectedWorkData =
             workDataOf(
-                MESSAGE to
-                        context.getString(
+                MESSAGE to context.getString(
                             R.string.um_erro_inesperado_aconteceu,
                             context.getString(R.string.ranking_criado_sem_senha_de_administrador)
                         )
@@ -246,8 +243,7 @@ class CreateRemoteRankingWorkerTest {
 
         val expectedWorkData =
             workDataOf(
-                MESSAGE to
-                        context.getString(
+                MESSAGE to context.getString(
                             R.string.network_error,
                             networkException.localizedMessage
                         )
@@ -361,8 +357,7 @@ class CreateRemoteRankingWorkerTest {
 
         val expectedWorkData =
             workDataOf(
-                MESSAGE to
-                        context.getString(R.string.ranking_criado_no_servidor_com_sucesso)
+                MESSAGE to context.getString(R.string.ranking_criado_no_servidor_com_sucesso)
             )
 
         // Act

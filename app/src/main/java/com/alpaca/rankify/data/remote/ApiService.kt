@@ -4,10 +4,10 @@ import com.alpaca.rankify.data.remote.models.NetworkRanking
 import com.alpaca.rankify.domain.model.CreatePlayerDTO
 import com.alpaca.rankify.domain.model.CreateRankingDTO
 import com.alpaca.rankify.domain.model.UpdatePlayerDTO
-import com.alpaca.rankify.util.NetworkConstants.PARAMETER_ID
-import com.alpaca.rankify.util.NetworkConstants.PARAMETER_PASSWORD
-import com.alpaca.rankify.util.NetworkConstants.PLAYER_ENDPOINT
-import com.alpaca.rankify.util.NetworkConstants.RANKING_ENDPOINT
+import com.alpaca.rankify.util.constant.NetworkConstants.PARAMETER_ID
+import com.alpaca.rankify.util.constant.NetworkConstants.PARAMETER_PASSWORD
+import com.alpaca.rankify.util.constant.NetworkConstants.PLAYER_ENDPOINT
+import com.alpaca.rankify.util.constant.NetworkConstants.RANKING_ENDPOINT
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

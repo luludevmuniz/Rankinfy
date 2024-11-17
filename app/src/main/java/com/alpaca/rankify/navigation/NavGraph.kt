@@ -8,8 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.alpaca.rankify.navigation.Panel.Principal
 import com.alpaca.rankify.navigation.Panel.RankingDetails
-import com.alpaca.rankify.presentation.panels.principal.PrincipalScreen
-import com.alpaca.rankify.presentation.panels.principal.destinations.my_rankings.MyRankingsListDetail
+import com.alpaca.rankify.presentation.panel.principal.PrincipalScreen
+import com.alpaca.rankify.presentation.panel.principal.destinations.my_rankings.MyRankingsListDetail
 
 @Composable
 fun SetupNavGraph(

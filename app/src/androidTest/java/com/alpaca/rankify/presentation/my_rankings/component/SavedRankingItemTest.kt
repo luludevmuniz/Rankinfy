@@ -7,10 +7,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import com.alpaca.rankify.domain.model.Ranking
-import com.alpaca.rankify.presentation.panels.principal.destinations.my_rankings.component.SavedRankingItem
-import com.alpaca.rankify.util.TestingTags.SavedRankingItem.RANKING_NOT_SAVED_TEXT
-import com.alpaca.rankify.util.TestingTags.SavedRankingItem.RANKING_SAVED_TEXT
-import com.alpaca.rankify.util.TestingTags.SavedRankingItem.SAVED_RANKING_ITEM
+import com.alpaca.rankify.presentation.panel.principal.destinations.my_rankings.component.SavedRankingItem
+import com.alpaca.rankify.util.constant.TestingTagsConstants.SavedRankingItem.RANKING_NOT_SAVED_TEXT
+import com.alpaca.rankify.util.constant.TestingTagsConstants.SavedRankingItem.RANKING_SAVED_TEXT
+import com.alpaca.rankify.util.constant.TestingTagsConstants.SavedRankingItem.SAVED_RANKING_ITEM
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.datetime.Clock

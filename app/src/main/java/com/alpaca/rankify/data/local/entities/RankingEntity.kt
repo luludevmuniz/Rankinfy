@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.alpaca.rankify.data.local.Converters
-import com.alpaca.rankify.util.DatabaseConstants.RANKING_TABLE
+import com.alpaca.rankify.util.constant.DatabaseConstants.RANKING_TABLE
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 

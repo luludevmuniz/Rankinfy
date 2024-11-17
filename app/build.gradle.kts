@@ -19,7 +19,6 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-//        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunner = "com.alpaca.rankify.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -58,10 +57,6 @@ android {
     }
 }
 
-composeCompiler {
-    enableStrongSkippingMode = false
-}
-
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -75,7 +70,6 @@ dependencies {
     implementation(libs.androidx.adaptive.layout)
     implementation(libs.androidx.adaptive.navigation)
     implementation(libs.androidx.material3.adaptive.navigation.suite)
-    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.work.ktx)
@@ -92,14 +86,14 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.work)
 
+    implementation(libs.lottie.compose)
+
     ksp(libs.room.compiler)
     ksp(libs.hilt.compiler)
     ksp(libs.hilt.android.compiler)
     ksp(libs.androidx.hilt.compiler)
-    ksp(libs.hilt.android.compiler)
 
     testImplementation(libs.junit)
-    testImplementation(libs.konsist)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
 
@@ -115,5 +109,4 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    debugImplementation(libs.leakcanary.android)
 }

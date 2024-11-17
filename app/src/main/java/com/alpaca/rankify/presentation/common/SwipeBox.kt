@@ -4,9 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import com.alpaca.rankify.R
 
 @Composable
 fun SwipeBox(
@@ -31,19 +30,19 @@ fun SwipeBox(
 ) {
     val swipeState = rememberSwipeToDismissBoxState()
 
-    var icon: ImageVector? = null
+    var icon: Painter? = null
     var alignment: Alignment? = null
     val color: Color
 
     when (swipeState.dismissDirection) {
         SwipeToDismissBoxValue.EndToStart -> {
-            icon = Icons.Outlined.Delete
+            icon = painterResource(R.drawable.ic_delete)
             alignment = Alignment.CenterEnd
             color = MaterialTheme.colorScheme.errorContainer
         }
 
         SwipeToDismissBoxValue.StartToEnd -> {
-            icon = Icons.Outlined.Edit
+            icon = painterResource(R.drawable.ic_edit)
             alignment = Alignment.CenterStart
             color = Color.Green.copy(alpha = 0.3f)
         }
@@ -69,7 +68,7 @@ fun SwipeBox(
                 icon?.let {
                     Icon(
                         modifier = Modifier.minimumInteractiveComponentSize(),
-                        imageVector = it,
+                        painter = it,
                         contentDescription = null
                     )
                 }
@@ -94,7 +93,6 @@ fun SwipeBox(
             }
         }
 
-        SwipeToDismissBoxValue.Settled -> {
-        }
+        SwipeToDismissBoxValue.Settled -> {}
     }
 }
