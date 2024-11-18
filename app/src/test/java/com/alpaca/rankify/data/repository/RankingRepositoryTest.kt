@@ -65,6 +65,31 @@ class RankingRepositoryTest {
         }
 
     @Test
+    fun `createRanking should return Error with message when exception is thrown`() =
+        runBlocking {
+            // Arrange
+            val rankingName = "Test Ranking"
+            val rankingAdminPassword = "admin123"
+            val rankingEntity = RankingEntity(
+                name = rankingName,
+                isAdmin = true,
+                adminPassword = rankingAdminPassword
+            )
+            val exception = Exception("Unknown error")
+
+            coEvery { localDataSource.saveRanking(rankingEntity) } throws exception
+
+            // Act
+            val result = repository.createRanking(
+                rankingName = rankingName,
+                rankingAdminPassword = rankingAdminPassword
+            )
+
+            // Assert
+            assertEquals(RequestState.Error("An error occurred: ${exception.message}"), result)
+        }
+
+    @Test
     fun `updateRanking should call localDataSource updateRanking`() = runBlocking {
         // Arrange
         val rankingEntity = RankingEntity(

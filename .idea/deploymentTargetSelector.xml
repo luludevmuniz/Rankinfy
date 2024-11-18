@@ -13,12 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="createRankingButton_showsCreateRankingText_whenLoadingIsFalse()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="createRankingButton_showsLoadingIndicator_whenLoadingIsTrue()">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="CreateRankingButtonTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

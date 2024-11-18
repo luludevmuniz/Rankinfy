@@ -1,4 +1,4 @@
-package com.alpaca.rankify.presentation.my_rankings.panel.principal.destinations.home.create_ranking.component
+package com.alpaca.rankify.presentation.panel.principal.destinations.home.create_ranking.component
 
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.assertIsEnabled
@@ -8,7 +8,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.alpaca.rankify.R
-import com.alpaca.rankify.presentation.panel.principal.destinations.home.create_ranking.component.CreateRankingButton
 import com.alpaca.rankify.util.constant.TestingTagsConstants.CreateRanking.CREATE_RANKING_BUTTON
 import org.junit.Rule
 import org.junit.Test
